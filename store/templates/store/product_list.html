@@ -1,0 +1,17 @@
+{% extends "store/base.html" %}
+
+{% block title %}All Products{% endblock %}
+
+{% block content %}
+    <h2>Available Jewelry:</h2>
+
+    {% for product in products %}
+    <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 10px;">
+        <h3><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3> 
+        <p><strong>Price:</strong> ${{ product.price }}</p>
+        <p><strong>Metal:</strong> {{ product.metal_type }}</p>
+    </div>
+    {% empty %}
+        <p>Sorry, no products are currently available.</p>
+    {% endfor %}
+{% endblock %}

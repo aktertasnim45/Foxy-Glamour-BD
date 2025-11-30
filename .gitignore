@@ -1,0 +1,7 @@
+venv/
+*.venv
+*venv
+
+*.sqlite3
+*media
+media/

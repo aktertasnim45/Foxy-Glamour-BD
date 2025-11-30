@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Jewelry Store{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>💎 Elegant Jewelry Shop</h1>
+        <nav>
+            <a href="{% url 'product_list' %}">Home</a> |
+            <a href="{% url 'admin:index' %}">Admin</a>
+            </nav>
+    </header>
+
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Jewelry Site</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% extends "store/base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+    <h2>{{ product.name }}</h2>
+
+    <div style="display: flex; gap: 40px; border: 1px solid #ddd; padding: 20px;">
+        <div style="flex: 1;">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto;">
+            {% else %}
+        
+            {% endif %}
+        </div>
+        <div style="flex: 2;">
+            <h3>${{ product.price }}</h3>
+            <p><strong>Metal:</strong> {{ product.metal_type }}</p>
+            <p><strong>Gemstone:</strong> {{ product.gemstone|default:"N/A" }}</p>
+            <p><strong>Weight:</strong> {{ product.weight_grams|default:"N/A" }} grams</p>
+
+            <p>{{ product.description }}</p>
+
+            <button style="padding: 10px 20px; background-color: #8d6e63; color: white; border: none; cursor: pointer;">Add to Cart</button>
+        </div>
+    </div>
+{% endblock %}
