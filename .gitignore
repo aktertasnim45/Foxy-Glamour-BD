@@ -5,3 +5,6 @@ venv/
 *.sqlite3
 *media
 media/
+*__pycache__
+__pycache__
+__pycache__

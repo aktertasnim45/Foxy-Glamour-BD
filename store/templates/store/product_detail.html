@@ -5,23 +5,36 @@
 {% block content %}
     <h2>{{ product.name }}</h2>
 
-    <div style="display: flex; gap: 40px; border: 1px solid #ddd; padding: 20px;">
+    <div style="display: flex; gap: 40px; border: 1px solid #ddd; padding: 20px; background-color: #fff;">
         <div style="flex: 1;">
             {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto;">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto; border: 1px solid #eee;">
             {% else %}
-        
+                <div style="width: 100%; height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                    No Image Available
+                </div>
             {% endif %}
         </div>
         <div style="flex: 2;">
-            <h3>${{ product.price }}</h3>
+            <h3 style="color: #5d4037; font-size: 1.5em; margin-top: 0;">${{ product.price }}</h3>
+            
             <p><strong>Metal:</strong> {{ product.metal_type }}</p>
             <p><strong>Gemstone:</strong> {{ product.gemstone|default:"N/A" }}</p>
             <p><strong>Weight:</strong> {{ product.weight_grams|default:"N/A" }} grams</p>
 
-            <p>{{ product.description }}</p>
+            <p style="line-height: 1.6; color: #555;">{{ product.description }}</p>
 
-            <button style="padding: 10px 20px; background-color: #8d6e63; color: white; border: none; cursor: pointer;">Add to Cart</button>
-        </div>
+            <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
+                <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                    {% csrf_token %}
+                    <div style="margin-bottom: 10px;">
+                        <label>Quantity:</label>
+                        {{ cart_product_form.quantity }}
+                    </div>
+                    {{ cart_product_form.override }}
+                    <input type="submit" value="Add to Cart" style="padding: 10px 20px; background-color: #8d6e63; color: white; border: none; cursor: pointer; font-size: 1em;">
+                </form>
+            </div>
+            </div>
     </div>
 {% endblock %}
