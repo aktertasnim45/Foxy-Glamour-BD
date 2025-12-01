@@ -19,11 +19,11 @@ A Django-based e-commerce platform for selling jewelry, focusing on elegance and
 - [x] Basic Templates & Static Files
 
 ### Phase 2: Shopping Cart Logic [CURRENT FOCUS]
-- [ ] Create `cart` app.
-- [ ] Implement Session-based Cart class.
-- [ ] Create views to Add/Remove items.
-- [ ] Build Cart Summary page.
-- [ ] Update Navbar with Cart counter.
+- [x] Create `cart` app.
+- [x] Implement Session-based Cart class.
+- [x] Create views to Add/Remove items.
+- [x] Build Cart Summary page.
+- [x] Update Navbar with Cart counter.
 
 ### Phase 3: Checkout & Orders
 - [ ] Order Model definition.

@@ -8,10 +8,20 @@
 <body>
     <header>
         <h1>💎 Elegant Jewelry Shop</h1>
+
         <nav>
             <a href="{% url 'product_list' %}">Home</a> |
+            <a href="{% url 'cart:cart_detail' %}">
+                Cart 
+                {% if cart|length > 0 %}
+                    <span style="background-color: #ffeb3b; color: #5d4037; padding: 2px 6px; border-radius: 50%; font-size: 0.8em; font-weight: bold;">
+                        {{ cart|length }}
+                    </span>
+                {% endif %}
+            </a> |
             <a href="{% url 'admin:index' %}">Admin</a>
-            </nav>
+        </nav>
+        
     </header>
 
     <div id="content">

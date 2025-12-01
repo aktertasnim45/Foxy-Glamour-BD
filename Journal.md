@@ -25,4 +25,11 @@
 
 ## Entry 4:
 Action: Connected Product Detail view to Cart logic.
+
 Changes: Updated store/views.py to inject CartAddProductForm. Updated store/templates/store/product_detail.html to render the form.
+
+## Entry 5:
+
+Action: Implemented Global Cart Context Processor.
+
+Changes: Created cart/context_processors.py, updated settings.py, and updated base.html to show the dynamic cart count.
