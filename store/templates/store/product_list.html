@@ -1,17 +1,30 @@
 {% extends "store/base.html" %}
+{% load static %}
 
-{% block title %}All Products{% endblock %}
+{% block title %}Luxe Gems - Home{% endblock %}
 
 {% block content %}
-    <h2>Available Jewelry:</h2>
-
-    {% for product in products %}
-    <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 10px;">
-        <h3><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3> 
-        <p><strong>Price:</strong> ${{ product.price }}</p>
-        <p><strong>Metal:</strong> {{ product.metal_type }}</p>
+    <div style="text-align: center; padding: 40px 0;">
+        <h1 style="color: var(--primary-color);">Exquisite Jewelry Collection</h1>
+        <p style="color: #666; max-width: 600px; margin: 0 auto;">Discover our hand-picked selection of fine jewelry, crafted with passion and precision.</p>
     </div>
-    {% empty %}
-        <p>Sorry, no products are currently available.</p>
-    {% endfor %}
+
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                <a href="{{ product.get_absolute_url }}">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                        <img src="{% static 'img/no_image.png' %}" alt="No Image">
+                    {% endif %}
+                </a>
+                <div class="product-info">
+                    <h3><a href="{{ product.get_absolute_url }}" style="color: #333; text-decoration: none;">{{ product.name }}</a></h3>
+                    <div class="price">${{ product.price }}</div>
+                    <a href="{{ product.get_absolute_url }}" class="btn">View Details</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

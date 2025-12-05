@@ -25,11 +25,15 @@ A Django-based e-commerce platform for selling jewelry, focusing on elegance and
 - [x] Build Cart Summary page.
 - [x] Update Navbar with Cart counter.
 
-### Phase 3: Checkout & Orders
-- [ ] Order Model definition.
-- [ ] Checkout View & Form.
-- [ ] Order confirmation logic.
+### Phase 3: Checkout & Orders [COMPLETED]
+- [x] Create `orders` app.
+- [x] Define `Order` models.
+- [x] Implement Checkout Logic.
+- [x] Success Page & Admin Integration.
 
-### Phase 4: User Authentication & Enhancements
-- [ ] User Login/Register.
-- [ ] Enhanced Styling (CSS).
+### Phase 4: User Authentication [CURRENT FOCUS]
+- [ ] Initialize `accounts` app.
+- [ ] User Registration (Sign Up).
+- [ ] User Login/Logout.
+- [ ] Navbar updates (Show "Login" vs "Logout").
+- [ ] User Dashboard (Order History).

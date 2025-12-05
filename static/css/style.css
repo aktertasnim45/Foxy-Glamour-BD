@@ -1,0 +1,130 @@
+/* GLOBAL VARIABLES */
+:root {
+    --primary-color: #5d4037;   /* Dark Brown */
+    --secondary-color: #8d6e63; /* Lighter Brown */
+    --accent-color: #ffeb3b;    /* Gold */
+    --text-color: #333;
+    --bg-color: #fdfbf7;        /* Off-white */
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* CONTAINER */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* HEADER & NAV */
+header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+header a {
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+header .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+nav a:hover {
+    color: var(--accent-color);
+    transition: color 0.3s;
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.btn-danger {
+    background-color: #d32f2f;
+}
+
+.btn-success {
+    background-color: #388e3c;
+}
+
+/* PRODUCT GRID */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.product-card {
+    background: var(--white);
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+    width: 100%;            /* Fill the card width */
+    height: 250px;          /* FORCE a fixed height */
+    object-fit: contain;    /* 'contain' shows the whole item without cropping. 
+                               Use 'cover' if you prefer to fill the square completely. */
+    background-color: #fff; /* White background for transparent images */
+    padding: 10px;          /* focused spacing inside the card */
+    box-sizing: border-box; /* ensures padding doesn't increase width */
+}
+
+.product-info {
+    padding: 15px;
+    text-align: center;
+}
+
+.price {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 10px 0;
+}
+
+.detail-img {
+    width: 100%;            /* Responsive width */
+    max-width: 500px;       /* NEVER get wider than 500px */
+    height: auto;           /* Maintain aspect ratio */
+    max-height: 500px;      /* NEVER get taller than 500px */
+    object-fit: contain;    /* Ensure the whole product is visible */
+    display: block;
+    margin: 0 auto;         /* Center the image */
+    border: 1px solid #eee; /* Optional: subtle border */
+    border-radius: 8px;
+}

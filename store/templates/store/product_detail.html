@@ -1,40 +1,33 @@
 {% extends "store/base.html" %}
+{% load static %}
 
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-    <h2>{{ product.name }}</h2>
-
-    <div style="display: flex; gap: 40px; border: 1px solid #ddd; padding: 20px; background-color: #fff;">
-        <div style="flex: 1;">
-            {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto; border: 1px solid #eee;">
-            {% else %}
-                <div style="width: 100%; height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center;">
-                    No Image Available
-                </div>
-            {% endif %}
-        </div>
-        <div style="flex: 2;">
-            <h3 style="color: #5d4037; font-size: 1.5em; margin-top: 0;">${{ product.price }}</h3>
-            
-            <p><strong>Metal:</strong> {{ product.metal_type }}</p>
-            <p><strong>Gemstone:</strong> {{ product.gemstone|default:"N/A" }}</p>
-            <p><strong>Weight:</strong> {{ product.weight_grams|default:"N/A" }} grams</p>
-
-            <p style="line-height: 1.6; color: #555;">{{ product.description }}</p>
-
-            <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px;">
-                <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                    {% csrf_token %}
-                    <div style="margin-bottom: 10px;">
-                        <label>Quantity:</label>
-                        {{ cart_product_form.quantity }}
-                    </div>
-                    {{ cart_product_form.override }}
-                    <input type="submit" value="Add to Cart" style="padding: 10px 20px; background-color: #8d6e63; color: white; border: none; cursor: pointer; font-size: 1em;">
-                </form>
-            </div>
-            </div>
+<div style="display: flex; gap: 50px; margin-top: 40px; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    
+    <div style="flex: 1; text-align: center;"> {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-img">
+        {% else %}
+            <img src="{% static 'img/no_image.png' %}" class="detail-img">
+        {% endif %}
     </div>
+
+    <div style="flex: 1;">
+        <h1 style="color: var(--primary-color); margin-top: 0;">{{ product.name }}</h1>
+        <p style="font-size: 1.5rem; color: #8d6e63; font-weight: bold; margin: 10px 0;">${{ product.price }}</p>
+        
+        <div style="color: #555; line-height: 1.8; margin-bottom: 30px;">
+            {{ product.description|linebreaks }}
+        </div>
+
+        <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display: flex; gap: 10px; align-items: center;">
+            {% csrf_token %}
+            <div style="display: none;">
+                {{ cart_product_form }}
+            </div>
+            <input type="submit" value="Add to Cart" class="btn" style="padding: 15px 30px; font-size: 1.1rem;">
+        </form>
+    </div>
+</div>
 {% endblock %}

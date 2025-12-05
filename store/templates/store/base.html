@@ -2,35 +2,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}Jewelry Store{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="utf-8" />
+    <title>{% block title %}My Shop{% endblock %}</title>
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h1>💎 Elegant Jewelry Shop</h1>
-
-        <nav>
-            <a href="{% url 'product_list' %}">Home</a> |
-            <a href="{% url 'cart:cart_detail' %}">
-                Cart 
-                {% if cart|length > 0 %}
-                    <span style="background-color: #ffeb3b; color: #5d4037; padding: 2px 6px; border-radius: 50%; font-size: 0.8em; font-weight: bold;">
-                        {{ cart|length }}
-                    </span>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="{% url 'store:product_list' %}" class="logo">LUXE GEMS</a>
+            
+            <nav>
+                {% if request.user.is_authenticated %}
+                    <span style="margin-right: 15px; color: #ccc;">Hello, {{ request.user.username }}</span>
+                    <a href="{% url 'accounts:dashboard' %}" style="margin-right: 15px;">My Orders</a>
+                    <form action="{% url 'accounts:logout' %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; color: white; cursor: pointer; font-size: 1rem;">Logout</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" style="margin-right: 15px;">Log In</a>
+                    <a href="{% url 'accounts:register' %}">Sign Up</a>
                 {% endif %}
-            </a> |
-            <a href="{% url 'admin:index' %}">Admin</a>
-        </nav>
-        
+                
+                <a href="{% url 'cart:cart_detail' %}" style="margin-left: 20px;">
+                    Cart 
+                    {% if cart|length > 0 %}
+                        <span style="background-color: var(--accent-color); color: var(--primary-color); padding: 2px 6px; border-radius: 50%; font-size: 0.8rem; font-weight: bold;">
+                            {{ cart|length }}
+                        </span>
+                    {% endif %}
+                </a>
+            </nav>
+        </div>
     </header>
 
-    <div id="content">
+    <div class="container">
         {% block content %}
         {% endblock %}
     </div>
-
-    <footer>
-        <p>&copy; 2025 Jewelry Site</p>
-    </footer>
 </body>
 </html>

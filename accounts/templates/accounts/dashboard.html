@@ -1,0 +1,32 @@
+{% extends "store/base.html" %}
+
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+    <h2>My Order History</h2>
+    
+    {% if orders %}
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            {% for order in orders %}
+                <div style="border: 1px solid #ddd; padding: 20px; border-radius: 5px; background: #fff;">
+                    <div style="background: #f1f1f1; padding: 10px; margin: -20px -20px 20px -20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between;">
+                        <strong>Order #{{ order.id }}</strong>
+                        <span>{{ order.created|date:"M d, Y" }}</span>
+                    </div>
+                    
+                    <p><strong>Status:</strong> {% if order.paid %}Paid{% else %}Pending{% endif %}</p>
+                    <p><strong>Total Cost:</strong> ${{ order.get_total_cost }}</p>
+                    
+                    <ul style="margin-top: 10px; padding-left: 20px;">
+                        {% for item in order.items.all %}
+                            <li>{{ item.quantity }}x {{ item.product.name }} (${{ item.price }})</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You haven't placed any orders yet.</p>
+        <a href="{% url 'product_list' %}" style="color: #5d4037; text-decoration: underline;">Start Shopping</a>
+    {% endif %}
+{% endblock %}

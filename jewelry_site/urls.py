@@ -5,7 +5,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cart/', include('cart.urls', namespace='cart')), # <-- Connected the cart app
+    path('accounts/', include('accounts.urls')),
+    path('cart/', include('cart.urls', namespace='cart')),
+    path('orders/', include('orders.urls', namespace='orders')), # <-- Connected the cart app
     path('', include('store.urls')),
 ]
 
