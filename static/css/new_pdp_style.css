@@ -1,0 +1,311 @@
+/* =========================================
+   WORLD CLASS PDP OVERHAUL
+   ========================================= */
+
+/* --- Container & Split Layout --- */
+.pdp-container {
+    max-width: 1400px;
+    /* Wider for luxury feel */
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    /* Image Heavy Left */
+    gap: 60px;
+    align-items: start;
+}
+
+/* --- Gallery (Desktop) --- */
+.gallery-wrapper {
+    position: relative;
+}
+
+.gallery-slider {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 2-column grid for images */
+    gap: 15px;
+}
+
+.gallery-slide img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* --- Info Column (Desktop Sticky) --- */
+.pdp-info {
+    position: sticky;
+    top: 40px;
+    /* Stick to top while scrolling images */
+    padding: 20px 0;
+}
+
+.pdp-title {
+    font-size: 2.2rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.pdp-price {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+/* --- Actions --- */
+.pdp-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.qty-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    height: 50px;
+}
+
+.qty-control button {
+    width: 40px;
+    height: 100%;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.qty-control input {
+    width: 50px;
+    text-align: center;
+    border: none;
+    font-size: 1rem;
+    pointer-events: none;
+    /* Read only */
+}
+
+.action-buttons {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons button {
+    flex: 1;
+    height: 50px;
+    border: none;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.btn-black {
+    background: #000;
+    color: #fff;
+}
+
+.btn-gold {
+    background: #C5A059;
+    /* Luxury Gold */
+    color: #fff;
+}
+
+.action-buttons button:hover {
+    opacity: 0.9;
+}
+
+.pdp-wishlist-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    color: #555;
+    text-decoration: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* --- Trust Badges --- */
+.trust-badges {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
+    margin-bottom: 30px;
+}
+
+.badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #555;
+    gap: 8px;
+}
+
+/* --- Accordions --- */
+.pdp-accordions {
+    border-bottom: 1px solid #eee;
+}
+
+.accordion-item {
+    border-top: 1px solid #eee;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 20px 0;
+    background: none;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.accordion-content .inner {
+    padding-bottom: 20px;
+    color: #666;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* --- Mobile / Tablet Overrides --- */
+@media (max-width: 900px) {
+    .pdp-container {
+        display: block;
+        /* Stack */
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Swipe Gallery */
+    .pdp-gallery {
+        width: 100%;
+        background: #f9f9f9;
+        margin-bottom: 20px;
+    }
+
+    .gallery-slider {
+        display: flex;
+        /* Horizontal Layout */
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 0;
+        /* Continuous */
+        height: 50vh;
+        /* Fixed height for consistency */
+    }
+
+    .gallery-slide {
+        min-width: 100%;
+        /* Full Width */
+        height: 100%;
+        scroll-snap-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .gallery-slide img {
+        max-height: 100%;
+        max-width: 100%;
+        width: auto;
+        object-fit: contain;
+    }
+
+    /* Dots */
+    .gallery-wrapper {
+        position: relative;
+    }
+
+    .gallery-dots {
+        position: absolute;
+        bottom: 15px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.2);
+        transition: background 0.3s;
+    }
+
+    .dot.active {
+        background: #000;
+    }
+
+    /* Info padding */
+    .pdp-info {
+        padding: 0 20px;
+        position: static;
+        /* No sticky info on mobile */
+    }
+
+    .pdp-title {
+        font-size: 1.5rem;
+    }
+
+    /* Mobile Sticky Action Footer (Overrides general buttons) */
+    .pdp-actions {
+        /* Hide default actions, use sticky footer instead logic */
+        /* OR we adapt this block to become the sticky footer */
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 15px 20px;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+        margin: 0;
+        align-items: center;
+    }
+
+    body {
+        padding-bottom: 90px;
+    }
+
+    .breadcrumbs.mobile-hidden {
+        display: none;
+    }
+
+    .breadcrumbs.desktop-hidden {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 0.8rem;
+        color: #888;
+    }
+}
+
+@media (min-width: 901px) {
+    .breadcrumbs.desktop-hidden {
+        display: none;
+    }
+
+    .mobile-only {
+        display: none;
+    }
+}

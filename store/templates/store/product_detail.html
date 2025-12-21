@@ -4,30 +4,935 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block content %}
-<div style="display: flex; gap: 50px; margin-top: 40px; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    
-    <div style="flex: 1; text-align: center;"> {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-img">
-        {% else %}
-            <img src="{% static 'img/no_image.png' %}" class="detail-img">
-        {% endif %}
-    </div>
+<div class="pdp-container">
 
-    <div style="flex: 1;">
-        <h1 style="color: var(--primary-color); margin-top: 0;">{{ product.name }}</h1>
-        <p style="font-size: 1.5rem; color: #8d6e63; font-weight: bold; margin: 10px 0;">${{ product.price }}</p>
-        
-        <div style="color: #555; line-height: 1.8; margin-bottom: 30px;">
-            {{ product.description|linebreaks }}
+    <!-- LEFT: MEDIA GALLERY -->
+    <div class="pdp-gallery">
+        <!-- Breadcrumbs (Desktop Location) -->
+        <div class="breadcrumbs mobile-hidden">
+            <a href="/">Home</a> /
+            <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a> /
+            <span>{{ product.name }}</span>
         </div>
 
-        <form action="{% url 'cart:cart_add' product.id %}" method="post" style="display: flex; gap: 10px; align-items: center;">
-            {% csrf_token %}
-            <div style="display: none;">
-                {{ cart_product_form }}
+        <!-- DESKTOP GALLERY (Vertical Thumbs + Main with Zoom) -->
+        <div class="desktop-gallery mobile-hidden">
+            <div class="desktop-thumbs">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="d-thumb active" onclick="changeDesktopImage(this.src, this)">
+                <img src="{{ product.image.url }}" class="d-thumb" onclick="changeDesktopImage(this.src, this)">
+                <img src="{{ product.image.url }}" class="d-thumb" onclick="changeDesktopImage(this.src, this)">
+                {% else %}
+                <img src="{% static 'img/no_image.png' %}" class="d-thumb active">
+                {% endif %}
             </div>
-            <input type="submit" value="Add to Cart" class="btn" style="padding: 15px 30px; font-size: 1.1rem;">
+            <div class="desktop-main zoom-container" id="zoomContainer">
+                {% if product.image %}
+                <img id="desktopMainImg" src="{{ product.image.url }}" alt="{{ product.name }}" class="zoom-image">
+                <div class="zoom-lens" id="zoomLens"></div>
+                <div class="zoom-result" id="zoomResult"></div>
+                {% else %}
+                <img src="{% static 'img/no_image.png' %}" alt="No Image">
+                {% endif %}
+                <div class="zoom-hint">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                        <path d="M11 8v6M8 11h6"></path>
+                    </svg>
+                    Hover to zoom • Click to expand
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE GALLERY (Swipe Slider with Tap-to-Zoom) -->
+        <div class="gallery-wrapper desktop-hidden">
+            <div class="gallery-slider" id="gallerySlider"
+                style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; cursor: grab; scrollbar-width: none;">
+                {% if product.image %}
+                <div class="gallery-slide mobile-zoom-slide" style="flex: 0 0 100%; scroll-snap-align: center;"
+                    onclick="openMobileLightbox(this.querySelector('img').src)">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                        style="width: 100%; height: auto; user-select: none;">
+                    <div class="mobile-zoom-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                            <path d="M11 8v6M8 11h6"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="gallery-slide mobile-zoom-slide" style="flex: 0 0 100%; scroll-snap-align: center;"
+                    onclick="openMobileLightbox(this.querySelector('img').src)">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }} View 2"
+                        style="width: 100%; height: auto; user-select: none;">
+                    <div class="mobile-zoom-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                            <path d="M11 8v6M8 11h6"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="gallery-slide mobile-zoom-slide" style="flex: 0 0 100%; scroll-snap-align: center;"
+                    onclick="openMobileLightbox(this.querySelector('img').src)">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }} View 3"
+                        style="width: 100%; height: auto; user-select: none;">
+                    <div class="mobile-zoom-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                            <path d="M11 8v6M8 11h6"></path>
+                        </svg>
+                    </div>
+                </div>
+                {% else %}
+                <div class="gallery-slide" style="flex: 0 0 100%; scroll-snap-align: center;">
+                    <img src="{% static 'img/no_image.png' %}" alt="No Image" style="width: 100%; height: auto;">
+                </div>
+                {% endif %}
+            </div>
+            <div class="gallery-dots">
+                <span class="dot active"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+            </div>
+            <div class="mobile-zoom-hint">Tap image to zoom</div>
+        </div>
+    </div>
+
+    <!-- RIGHT: PRODUCT INFO (Sticky) -->
+    <div class="pdp-info">
+
+        <!-- Mobile Breadcrumbs -->
+        <div class="breadcrumbs desktop-hidden">
+            <a href="/">Home</a> / {{ product.category.name }}
+        </div>
+        <h1 class="pdp-title">{{ product.name }}</h1>
+        {% if product.has_discount %}
+        <div class="pdp-price-wrapper">
+            <p class="pdp-price">TK. {{ product.discounted_price }}</p>
+            <p class="pdp-original-price" style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">TK. {{ product.price }}</p>
+            <span class="discount-badge" style="background: #e74c3c; color: #fff; padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; margin-left: 10px;">{% if product.discount_percentage %}{{ product.discount_percentage }}% OFF{% else %}TK. {{ product.discount_amount }} OFF{% endif %}</span>
+        </div>
+        {% else %}
+        <p class="pdp-price">TK. {{ product.price }}</p>
+        {% endif %}
+
+        <!-- Wishlist Toggle -->
+        <a href="{% url 'store:wishlist_add' product.id %}" class="pdp-wishlist-link">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z">
+                </path>
+            </svg>
+            Add to Wishlist
+        </a>
+
+        <!-- Add to Cart Form -->
+        {% if product.stock > 0 %}
+        <form action="{% url 'cart:cart_add' product.id %}" method="post" id="add-to-cart-form">
+            {% csrf_token %}
+            <div class="initially-hidden">
+                <input type="hidden" name="quantity" id="id_quantity" value="1">
+                <input type="hidden" name="override" id="id_override" value="False">
+                <input type="hidden" name="size" id="id_size" value="">
+            </div>
+
+            <!-- Size Selector -->
+            {% if not product.is_adjustable %}
+            <div class="size-selector-wrapper" style="margin-bottom: 20px;">
+                <div class="size-tools" style="margin-bottom: 8px;">
+                    <label style="font-weight: 500; font-size: 0.9rem;">Size</label>
+                </div>
+
+                <select id="size-select-us" class="size-dropdown"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 0;"
+                    onchange="updateSelectedSize(this.value)">
+                    <option value="" selected disabled>Choose Size</option>
+                    {% if product.sizes.exists %}
+                    {% for size in product.sizes.all %}
+                    <option value="{{ size.code }}">{{ size.name }}</option>
+                    {% endfor %}
+                    {% else %}
+                    <!-- Fallback if no sizes assigned -->
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    {% endif %}
+                </select>
+            </div>
+            {% else %}
+            <div class="size-selector-wrapper" style="margin-bottom: 20px;">
+                <p style="margin: 0; color: #555; font-size: 0.95rem;">Size: <strong>Adjustable</strong></p>
+                <input type="hidden" id="id_size_adjustable" value="Adjustable">
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const hiddenInput = document.getElementById('id_size');
+                        if (hiddenInput) {
+                            hiddenInput.value = 'Adjustable';
+                        }
+                    });
+                </script>
+            </div>
+            {% endif %}
+
+            <!-- Quantity & Actions -->
+            <div class="pdp-actions">
+                <div class="qty-control">
+                    <button type="button" onclick="updateQty(-1)">-</button>
+                    <input type="number" id="qty-display" value="1" readonly>
+                    <button type="button" onclick="updateQty(1)">+</button>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn-black">ADD TO CART</button>
+                    <button type="button" class="btn-gold" onclick="buyNow()">BUY NOW</button>
+                </div>
+            </div>
         </form>
+        {% else %}
+        <div class="out-of-stock-notice"
+            style="padding: 20px; background: #fff0f0; border: 1px solid #ffcccc; color: #d32f2f; font-weight: 600; text-transform: uppercase; text-align: center; margin-bottom: 20px;">
+            Stock Out
+        </div>
+        {% endif %}
+
+        <!-- Trust Signals -->
+        <div class="trust-badges">
+            <div class="badge-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                <span>Premium Quality</span>
+            </div>
+            <div class="badge-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span>Secure Checkout</span>
+            </div>
+        </div>
+
+        <!-- Accordions -->
+        <div class="pdp-accordions">
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    Description
+                    <span class="icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="inner">{{ product.description|linebreaks }}</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    Shipping & Returns
+                    <span class="icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="inner">
+                        <p>We offer delivery all over Bangladesh. Standard delivery takes 2-5 business days.
+                            Note: Check the product in front of the delivery man before paying and only can be return
+                            if there is any damage to the product with paying the delivery charge.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    Reviews (0)
+                    <span class="icon">+</span>
+                </button>
+                <div class="accordion-content">
+                    <div class="inner">
+                        <p>No reviews yet. Be the first to write one!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="related-products" style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #eee;">
+        <h3
+            style="font-size: 1.4rem; font-weight: 600; text-transform: uppercase; margin-bottom: 30px; letter-spacing: 1px;">
+            You May Also Like</h3>
+        <div class="product-grid">
+            {% for r_product in related_products %}
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <a href="{{ r_product.get_absolute_url }}">
+                        {% if r_product.image %}
+                        <img src="{{ r_product.image.url }}" alt="{{ r_product.name }}">
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="product-info-minimal" style="padding-top: 15px;">
+                    <h4 style="font-size: 1rem; margin: 0 0 5px;"><a href="{{ r_product.get_absolute_url }}"
+                            style="text-decoration: none; color: #333;">{{ r_product.name }}</a></h4>
+                    <div style="font-weight: 500; color: #555;">TK. {{ r_product.price }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // Quantity Logic
+    function updateQty(change) {
+        const display = document.getElementById('qty-display');
+        let val = parseInt(display.value) + change;
+        if (val < 1) val = 1;
+        display.value = val;
+        const formInput = document.getElementById('id_quantity');
+        if (formInput) formInput.value = val;
+    }
+
+    // Buy Now
+    function buyNow() {
+        document.getElementById('add-to-cart-form').submit();
+    }
+
+    // Accordions
+    function toggleAccordion(btn) {
+        btn.classList.toggle('active');
+        const content = btn.nextElementSibling;
+        const icon = btn.querySelector('.icon');
+
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+            icon.textContent = '+';
+        } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+            icon.textContent = '-';
+        }
+    }
+
+    // Unified Swipe & Drag Logic for Desktop and Mobile
+    const galleryScrollContainer = document.getElementById('gallerySlider');
+
+    if (galleryScrollContainer) {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        // Mouse Events
+        galleryScrollContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            galleryScrollContainer.classList.add('active'); // CSS class for cursor: grabbing
+            startX = e.pageX - galleryScrollContainer.offsetLeft;
+            scrollLeft = galleryScrollContainer.scrollLeft;
+            // Disable scroll snap while dragging for smoothness
+            galleryScrollContainer.style.scrollSnapType = 'none';
+        });
+
+        galleryScrollContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            galleryScrollContainer.classList.remove('active');
+            // Re-enable scroll snap
+            galleryScrollContainer.style.scrollSnapType = 'x mandatory';
+        });
+
+        galleryScrollContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            galleryScrollContainer.classList.remove('active');
+            // Re-enable scroll snap
+            galleryScrollContainer.style.scrollSnapType = 'x mandatory';
+        });
+
+        galleryScrollContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - galleryScrollContainer.offsetLeft;
+            const walk = (x - startX) * 2; // Scroll-fast multiplier
+            galleryScrollContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        // Update Dots on Scroll
+        galleryScrollContainer.addEventListener('scroll', () => {
+            const index = Math.round(galleryScrollContainer.scrollLeft / galleryScrollContainer.clientWidth);
+            document.querySelectorAll('.dot').forEach((d, i) => {
+                d.classList.toggle('active', i === index);
+            });
+        });
+    }
+
+    // Size Selection Logic
+    function updateSelectedSize(value) {
+        // Find the hidden input 'size' rendered by Django form
+        // Since we added size field to form, it should start with id_size
+        const hiddenInput = document.getElementById('id_size');
+        if (hiddenInput) {
+            hiddenInput.value = value;
+        }
+    }
+
+    // ============================================
+    // WORLD-CLASS IMAGE ZOOM FUNCTIONALITY
+    // ============================================
+
+    // Desktop Hover Zoom
+    function initDesktopZoom() {
+        const container = document.getElementById('zoomContainer');
+        const img = document.getElementById('desktopMainImg');
+        const lens = document.getElementById('zoomLens');
+        const result = document.getElementById('zoomResult');
+
+        if (!container || !img || !lens || !result) return;
+
+        const cx = 2.5; // Zoom level
+        const cy = 2.5;
+
+        result.style.backgroundImage = `url('${img.src}')`;
+
+        container.addEventListener('mouseenter', function () {
+            lens.style.display = 'block';
+            result.style.display = 'block';
+            result.style.backgroundSize = `${img.width * cx}px ${img.height * cy}px`;
+        });
+
+        container.addEventListener('mouseleave', function () {
+            lens.style.display = 'none';
+            result.style.display = 'none';
+        });
+
+        container.addEventListener('mousemove', function (e) {
+            e.preventDefault();
+            const pos = getCursorPos(e, img);
+
+            // Calculate lens position
+            let x = pos.x - (lens.offsetWidth / 2);
+            let y = pos.y - (lens.offsetHeight / 2);
+
+            // Boundaries
+            if (x > img.width - lens.offsetWidth) x = img.width - lens.offsetWidth;
+            if (x < 0) x = 0;
+            if (y > img.height - lens.offsetHeight) y = img.height - lens.offsetHeight;
+            if (y < 0) y = 0;
+
+            lens.style.left = x + 'px';
+            lens.style.top = y + 'px';
+
+            // Move background
+            result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+        });
+
+        // Click to open lightbox
+        container.addEventListener('click', function () {
+            openLightbox(img.src);
+        });
+    }
+
+    function getCursorPos(e, img) {
+        const rect = img.getBoundingClientRect();
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+
+    // Lightbox Modal
+    function openLightbox(src) {
+        const lightbox = document.getElementById('imageLightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        if (lightbox && lightboxImg) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Reset zoom state
+            currentScale = 1;
+            currentX = 0;
+            currentY = 0;
+            updateLightboxTransform();
+        }
+    }
+
+    function closeLightbox() {
+        const lightbox = document.getElementById('imageLightbox');
+        if (lightbox) {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Lightbox zoom controls
+    let currentScale = 1;
+    let currentX = 0;
+    let currentY = 0;
+
+    function updateLightboxTransform() {
+        const img = document.getElementById('lightboxImg');
+        if (img) {
+            img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+        }
+    }
+
+    function zoomIn() {
+        if (currentScale < 4) {
+            currentScale += 0.5;
+            updateLightboxTransform();
+        }
+    }
+
+    function zoomOut() {
+        if (currentScale > 0.5) {
+            currentScale -= 0.5;
+            if (currentScale === 1) {
+                currentX = 0;
+                currentY = 0;
+            }
+            updateLightboxTransform();
+        }
+    }
+
+    function resetZoom() {
+        currentScale = 1;
+        currentX = 0;
+        currentY = 0;
+        updateLightboxTransform();
+    }
+
+    // Keyboard shortcuts for lightbox
+    document.addEventListener('keydown', function (e) {
+        const lightbox = document.getElementById('imageLightbox');
+        if (!lightbox || !lightbox.classList.contains('active')) return;
+
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === '+' || e.key === '=') zoomIn();
+        if (e.key === '-') zoomOut();
+        if (e.key === '0') resetZoom();
+    });
+
+    // Pinch to zoom on mobile lightbox
+    let initialDistance = 0;
+    let initialScale = 1;
+
+    document.getElementById('lightboxImg')?.addEventListener('touchstart', function (e) {
+        if (e.touches.length === 2) {
+            initialDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            initialScale = currentScale;
+        }
+    });
+
+    document.getElementById('lightboxImg')?.addEventListener('touchmove', function (e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const distance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            currentScale = Math.max(0.5, Math.min(4, initialScale * (distance / initialDistance)));
+            updateLightboxTransform();
+        }
+    });
+
+    // Initialize zoom on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        initDesktopZoom();
+    });
+
+    // Update zoom when thumbnail changes
+    function changeDesktopImage(src, thumb) {
+        const mainImg = document.getElementById('desktopMainImg');
+        const result = document.getElementById('zoomResult');
+        if (mainImg) {
+            mainImg.src = src;
+            mainImg.onload = function () {
+                if (result) {
+                    result.style.backgroundImage = `url('${src}')`;
+                }
+            };
+        }
+        document.querySelectorAll('.d-thumb').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+    }
+
+    // ============================================
+    // MOBILE ZOOM FUNCTIONALITY
+    // ============================================
+
+    function openMobileLightbox(src) {
+        openLightbox(src);
+        // Show mobile-friendly instructions
+        const hint = document.querySelector('.lightbox-hint');
+        if (hint && window.innerWidth <= 768) {
+            hint.textContent = 'Pinch to zoom • Drag to pan • Tap outside to close';
+        }
+    }
+
+    // Enhanced drag-to-pan for mobile lightbox
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let imgStartX = 0;
+    let imgStartY = 0;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const lightboxImg = document.getElementById('lightboxImg');
+        if (!lightboxImg) return;
+
+        // Touch drag for panning
+        lightboxImg.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 1 && currentScale > 1) {
+                isDragging = true;
+                dragStartX = e.touches[0].clientX;
+                dragStartY = e.touches[0].clientY;
+                imgStartX = currentX;
+                imgStartY = currentY;
+            }
+        }, { passive: true });
+
+        lightboxImg.addEventListener('touchmove', function (e) {
+            if (isDragging && e.touches.length === 1 && currentScale > 1) {
+                const deltaX = e.touches[0].clientX - dragStartX;
+                const deltaY = e.touches[0].clientY - dragStartY;
+                currentX = imgStartX + deltaX;
+                currentY = imgStartY + deltaY;
+                updateLightboxTransform();
+            }
+        }, { passive: true });
+
+        lightboxImg.addEventListener('touchend', function () {
+            isDragging = false;
+        });
+
+        // Double-tap to zoom
+        let lastTap = 0;
+        lightboxImg.addEventListener('touchend', function (e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                e.preventDefault();
+                if (currentScale === 1) {
+                    currentScale = 2.5;
+                } else {
+                    currentScale = 1;
+                    currentX = 0;
+                    currentY = 0;
+                }
+                updateLightboxTransform();
+            }
+            lastTap = currentTime;
+        });
+    });
+</script>
+
+<!-- Fullscreen Lightbox Modal -->
+<div id="imageLightbox" class="image-lightbox" onclick="if(event.target === this) closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"></path>
+        </svg>
+    </button>
+
+    <div class="lightbox-controls">
+        <button onclick="zoomOut()" title="Zoom Out (-)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35M8 11h6"></path>
+            </svg>
+        </button>
+        <button onclick="resetZoom()" title="Reset (0)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+            </svg>
+        </button>
+        <button onclick="zoomIn()" title="Zoom In (+)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35M11 8v6M8 11h6"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div class="lightbox-content">
+        <img id="lightboxImg" src="" alt="Product Image" draggable="false">
+    </div>
+
+    <div class="lightbox-hint">
+        Use +/- to zoom • Pinch on mobile • Press Esc to close
     </div>
 </div>
+
+<style>
+    /* ============================================
+   ZOOM CONTAINER STYLES
+============================================ */
+    .zoom-container {
+        position: relative;
+        cursor: crosshair;
+        overflow: hidden;
+    }
+
+    .zoom-image {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .zoom-lens {
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.3);
+        border: 2px solid rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        pointer-events: none;
+        display: none;
+        z-index: 10;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(1px);
+    }
+
+    .zoom-result {
+        position: absolute;
+        top: 0;
+        right: -420px;
+        width: 400px;
+        height: 400px;
+        border: 1px solid #ddd;
+        background-repeat: no-repeat;
+        background-color: #fff;
+        display: none;
+        z-index: 100;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+    }
+
+    .zoom-hint {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+    }
+
+    .zoom-container:hover .zoom-hint {
+        opacity: 0;
+    }
+
+    /* ============================================
+   LIGHTBOX STYLES
+============================================ */
+    .image-lightbox {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .image-lightbox.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 50%;
+        transition: background 0.3s;
+        z-index: 10001;
+    }
+
+    .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .lightbox-controls {
+        position: absolute;
+        bottom: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 10001;
+    }
+
+    .lightbox-controls button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .lightbox-controls button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+    }
+
+    .lightbox-content {
+        max-width: 90%;
+        max-height: 80%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .lightbox-content img {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        transition: transform 0.2s ease;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .lightbox-hint {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+        .zoom-result {
+            display: none !important;
+        }
+
+        .zoom-lens {
+            display: none !important;
+        }
+
+        .zoom-hint {
+            font-size: 0.7rem;
+            padding: 6px 12px;
+        }
+
+        .zoom-hint::after {
+            content: '';
+        }
+
+        .lightbox-controls button {
+            width: 44px;
+            height: 44px;
+        }
+    }
+
+    /* Mobile Zoom Enhancements */
+    .mobile-zoom-slide {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .mobile-zoom-icon {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        width: 44px;
+        height: 44px;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        opacity: 0.9;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .mobile-zoom-slide:active .mobile-zoom-icon {
+        transform: scale(0.9);
+        opacity: 1;
+    }
+
+    .mobile-zoom-hint {
+        text-align: center;
+        padding: 8px;
+        font-size: 0.75rem;
+        color: #666;
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.9));
+        margin-top: -20px;
+        position: relative;
+        z-index: 5;
+    }
+
+    /* Touch-optimized lightbox for mobile */
+    @media (max-width: 768px) {
+        .lightbox-content {
+            max-width: 100%;
+            max-height: 100%;
+            padding: 0;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 100vh;
+            touch-action: none;
+        }
+
+        .lightbox-controls {
+            bottom: 40px;
+        }
+
+        .lightbox-hint {
+            bottom: 10px;
+            font-size: 0.7rem;
+        }
+
+        .lightbox-close {
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .image-lightbox {
+            background: rgba(0, 0, 0, 0.98);
+        }
+    }
+</style>
 {% endblock %}

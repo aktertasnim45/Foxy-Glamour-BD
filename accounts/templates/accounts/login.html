@@ -3,18 +3,66 @@
 {% block title %}Log In{% endblock %}
 
 {% block content %}
-<div style="max-width: 400px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; background: #fff; text-align: center;">
-    <h2>Log In</h2>
-    <form method="post" action="{% url 'accounts:login' %}">
+<div class="auth-container">
+    <h2 class="auth-title">Log In</h2>
+    <form method="post" action="{% url 'accounts:login' %}" class="auth-form">
         {% csrf_token %}
-        <div style="text-align: left;">
-            {{ form.as_p }}
-        </div>
+
+        <!-- Render form fields manually or iterate to add classes if needed, 
+             but standard as_p is fine if we style the paragraphs/inputs globally in auth-form -->
+        {{ form.as_p }}
+
         <input type="hidden" name="next" value="{{ next }}" />
-        <input type="submit" value="Log In" style="background-color: #5d4037; color: white; padding: 10px 20px; border: none; cursor: pointer; margin-top: 10px; width: 100%;">
+        <button type="submit" class="auth-btn">Log In</button>
     </form>
-    <p style="margin-top: 20px;">
-        New here? <a href="{% url 'accounts:register' %}" style="color: #5d4037; font-weight: bold;">Create an account</a>
-    </p>
+
+    <div class="auth-footer">
+        <p>New here? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // PASSWORD TOGGLE
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach(input => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'password-input-wrapper';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'password-toggle-btn';
+            toggleBtn.type = 'button';
+            toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+            toggleBtn.addEventListener('click', function () {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
+                } else {
+                    input.type = 'password';
+                    toggleBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+                }
+            });
+            wrapper.appendChild(toggleBtn);
+        });
+
+        // MOVE LABELS TO PLACEHOLDERS (Minimalist Trick)
+        const form = document.querySelector('.auth-form');
+        if (form) {
+            const paragraphs = form.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                const label = p.querySelector('label');
+                const input = p.querySelector('input');
+                if (label && input) {
+                    // Set placeholder to label text content minus any colon
+                    if (!input.placeholder) {
+                        input.placeholder = label.innerText.replace(':', '');
+                    }
+                    // Label helper text or errors might need handling? 
+                    // Usually Django puts help text in a specific way, typically separate.
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -1,0 +1,42 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 60px 20px; max-width: 1200px; margin: 0 auto;">
+    <h1 style="text-align: center; font-family: 'Cinzel', serif; font-size: 2.5rem; margin-bottom: 50px;">My
+        Wishlist</h1>
+
+    {% if wishlist_items %}
+    <div class="product-grid">
+        {% for item in wishlist_items %}
+        <div class="product-card">
+            <div class="product-image-wrapper">
+                <a href="{{ item.product.get_absolute_url }}">
+                    {% if item.product.image %}
+                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                    <img src="{% static 'img/no_image.png' %}" alt="No Image">
+                    {% endif %}
+                </a>
+                <div class="glass-overlay">
+                    <a href="{% url 'store:wishlist_remove' item.product.id %}" class="glass-btn">Remove</a>
+                </div>
+            </div>
+
+            <div class="product-info-minimal">
+                <h3><a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a></h3>
+                <div class="product-price-visible">TK. {{ item.product.price }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px; background: #fafafa; border: 1px solid #eee;">
+        <p style="font-size: 1.2rem; margin-bottom: 20px; color: #666;">Your wishlist is empty.</p>
+        <a href="{% url 'store:product_list' %}" class="btn">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

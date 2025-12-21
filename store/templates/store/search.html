@@ -1,0 +1,212 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}Search Results | Foxy Glamour{% endblock %}
+
+{% block content %}
+<div class="search-page-container"
+    style="display: flex; gap: 40px; margin-top: 40px; align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- Sidebar Filters -->
+    <aside class="search-sidebar"
+        style="width: 250px; flex-shrink: 0; background: #fff; border: 1px solid #f0f0f0; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+        <h3
+            style="font-size: 1.1rem; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px; font-family: 'Cinzel', serif;">
+            Refine Search</h3>
+
+        <form method="get" id="search-filter-form">
+            <input type="hidden" name="q" value="{{ query|default_if_none:'' }}">
+
+            <!-- Category Filter -->
+            <div class="filter-group" style="margin-bottom: 30px;">
+                <h4
+                    style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; color: #666; letter-spacing: 1px;">
+                    Category</h4>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="?q={{ query|default_if_none:'' }}"
+                        style="font-size: 0.9rem; display: flex; align-items: center; justify-content: space-between; color: {% if not request.GET.category %}#000{% else %}#666{% endif %};">
+                        <span>All Categories</span>
+                    </a>
+                    {% for c in categories %}
+                    <label
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; color: #666;">
+                        <input type="radio" name="category" value="{{ c.slug }}" onchange="this.form.submit()"
+                            style="accent-color: #000;">
+                        {{ c.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Price Filter -->
+            <div class="filter-group" style="margin-bottom: 30px;">
+                <h4
+                    style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; color: #666; letter-spacing: 1px;">
+                    Price Range</h4>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                    <input type="number" name="min_price" placeholder="Min" value="{{ request.GET.min_price }}"
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; font-size: 0.9rem;">
+                    <span style="color: #999;">-</span>
+                    <input type="number" name="max_price" placeholder="Max" value="{{ request.GET.max_price }}"
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; font-size: 0.9rem;">
+                </div>
+                <button type="submit" class="btn" style="width: 100%; padding: 8px; font-size: 0.8rem;">Apply</button>
+            </div>
+
+            <!-- Metal Filter -->
+            {% if metals %}
+            <div class="filter-group" style="margin-bottom: 30px;">
+                <h4
+                    style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; color: #666; letter-spacing: 1px;">
+                    Material</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    {% for m in metals %}
+                    <label
+                        style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem; color: #666;">
+                        <input type="checkbox" name="metal" value="{{ m }}" onchange="this.form.submit()"
+                            style="accent-color: #000;">
+                        {{ m }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if request.GET.category or request.GET.min_price or request.GET.max_price or request.GET.metal %}
+            <a href="{% url 'store:search' %}?q={{ query|default_if_none:'' }}" class="btn btn-outline"
+                style="width: 100%; text-align: center; display: block; padding: 10px 0;">Clear All</a>
+            {% endif %}
+
+        </form>
+    </aside>
+
+    <!-- Results Area -->
+    <div class="search-results" style="flex: 1; min-width: 300px;">
+        <!-- Header -->
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee;">
+            <div>
+                <h1 style="font-size: 1.5rem; margin: 0; font-family: 'Cinzel', serif;">
+                    {% if query %}Results for "{{ query }}"{% else %}All Jewelry{% endif %}
+                </h1>
+                <p style="color: #888; font-size: 0.9rem; margin-top: 5px;">{{ products.count }} item(s) found</p>
+            </div>
+
+            <!-- View Toggle & Sorting -->
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="view-controls" style="margin-bottom: 0; padding-right: 0;">
+                    <button class="view-btn active" onclick="setProductView('grid')" id="btn-grid" title="Grid View"
+                        style="width: 34px; height: 34px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                    <button class="view-btn" onclick="setProductView('list')" id="btn-list" title="List View"
+                        style="width: 34px; height: 34px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <form method="get" style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Keep other params -->
+                    {% for key,value in request.GET.items %}
+                    {% if key != 'sort' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}
+                    {% endfor %}
+                    <label style="font-size: 0.85rem; text-transform: uppercase; color: #555;">Sort:</label>
+                    <select name="sort" onchange="this.form.submit()"
+                        style="padding: 8px 12px; border: 1px solid #ddd; background: transparent; cursor: pointer;">
+                        <option value="newest" {% if sort_by=='newest' %}selected{% endif %}>Newest</option>
+                        <option value="price_low" {% if sort_by=='price_low' %}selected{% endif %}>Price: Low to High
+                        </option>
+                        <option value="price_high" {% if sort_by=='price_high' %}selected{% endif %}>Price: High to Low
+                        </option>
+                    </select>
+                </form>
+            </div>
+        </div>
+
+        <!-- Grid -->
+        <div class="product-grid" id="product-container"
+            style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); margin-top: 0;">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image-wrapper">
+                    <a href="{{ product.get_absolute_url }}">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                        <img src="{% static 'img/no_image.png' %}" alt="No Image">
+                        {% endif %}
+                    </a>
+                    <div class="glass-overlay">
+                        <a href="{{ product.get_absolute_url }}" class="glass-btn">View Details</a>
+                    </div>
+                </div>
+                <div class="product-info-minimal">
+                    <h3 style="font-size: 0.9rem; margin-bottom: 5px; height: 2.2em; overflow: hidden;"><a
+                            href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                    <div style="font-weight: 500; font-size: 0.9rem; color: #000;">TK. {{ product.price }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div
+                style="grid-column: 1 / -1; text-align: center; padding: 60px; background: #f9f9f9; border-radius: 4px;">
+                <p style="font-size: 1.2rem; color: #666; margin-bottom: 20px;">No products found matching your options.
+                </p>
+                <a href="{% url 'store:search' %}" class="btn">View All Products</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function setProductView(mode) {
+        const container = document.getElementById('product-container');
+        const btnGrid = document.getElementById('btn-grid');
+        const btnList = document.getElementById('btn-list');
+
+        if (!container || !btnGrid || !btnList) return;
+
+        if (mode === 'list') {
+            container.classList.remove('product-grid');
+            container.classList.add('product-list');
+
+            // Adjust grid-template-columns manually if inline styles override class?
+            // The class .product-list overrides display to flex.
+            // But inline style 'grid-template-columns' might linger if display is grid. 
+            // Flex ignores grid properties so it should be fine.
+
+            btnList.classList.add('active');
+            btnGrid.classList.remove('active');
+            localStorage.setItem('viewMode', 'list');
+        } else {
+            container.classList.remove('product-list');
+            container.classList.add('product-grid');
+            btnGrid.classList.add('active');
+            btnList.classList.remove('active');
+            localStorage.setItem('viewMode', 'grid');
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedMode = localStorage.getItem('viewMode');
+        if (savedMode === 'list') {
+            setProductView('list');
+        }
+    });
+</script>
+{% endblock %}

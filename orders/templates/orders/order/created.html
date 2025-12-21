@@ -3,11 +3,51 @@
 {% block title %}Thank You{% endblock %}
 
 {% block content %}
-    <div style="text-align: center; margin-top: 50px;">
-        <h1 style="color: #28a745; font-size: 3rem;">Thank You!</h1>
-        <p style="font-size: 1.2rem; color: #555;">Your order has been successfully placed.</p>
-        <p style="font-size: 1.1rem; color: #555;">Order ID: <strong>{{ order.id }}</strong></p>
-        
-        <a href="{% url 'store:product_list' %}" class="btn" style="margin-top: 20px; display: inline-block;">Continue Shopping</a>
+<div class="container" style="padding: 100px 20px; text-align: center; max-width: 600px; margin: 0 auto;">
+    <div class="success-card"
+        style="background: #fff; padding: 50px 30px; border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+
+        <!-- Animated Checkmark -->
+        <div
+            style="width: 80px; height: 80px; background: #4CAF50; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"
+                stroke-linejoin="round" style="width: 40px; height: 40px;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </div>
+
+        <h1 style="font-family: 'Cinzel', serif; font-size: 2.5rem; margin-bottom: 10px; color: #333;">Order Placed</h1>
+        <p style="font-size: 1.1rem; color: #666; margin-bottom: 30px;">Thank you for your purchase. We have received
+            your order.</p>
+
+        <div
+            style="background: #fafafa; padding: 20px; border-radius: 4px; margin-bottom: 40px; border: 1px dashed #ddd;">
+            <p style="margin: 0; font-size: 0.9rem; text-transform: uppercase; color: #888; letter-spacing: 1px;">Order
+                Reference</p>
+            <p style="margin: 5px 0 0; font-size: 1.5rem; font-weight: 600; color: #000;">#{{ order.id }}</p>
+        </div>
+
+        <a href="{% url 'store:product_list' %}" class="btn"
+            style="background: #000; color: #fff; padding: 15px 40px; text-decoration: none; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; transition: all 0.3s; display: inline-block;">Continue
+            Shopping</a>
     </div>
+
+    <style>
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            80% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</div>
 {% endblock %}

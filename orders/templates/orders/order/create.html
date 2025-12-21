@@ -3,41 +3,144 @@
 {% block title %}Checkout{% endblock %}
 
 {% block content %}
-    <h2>Checkout</h2>
-    <div style="display: flex; gap: 40px; margin-top: 20px;">
-        <div style="flex: 1;">
-            <h3 style="border-bottom: 2px solid #5d4037; padding-bottom: 10px; margin-bottom: 20px;">Shipping Details</h3>
-            <form action="." method="post" style="background: #f9f9f9; padding: 20px; border-radius: 5px;">
-                {% csrf_token %}
-                
-                {% for field in form %}
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 5px;">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div style="color: red; font-size: 0.9em;">{{ field.errors }}</div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+<style>
+    .initially-hidden {
+        display: none;
+    }
+</style>
 
-                <input type="submit" value="Place Order" style="background-color: #5d4037; color: white; border: none; padding: 12px 20px; font-size: 1.1em; cursor: pointer; width: 100%; margin-top: 10px;">
+<div class="checkout-header">
+    <h2>Secure Checkout</h2>
+</div>
+
+<div class="checkout-container">
+    <div class="checkout-form-column">
+        <div class="form-card">
+            <h3 class="card-title">Shipping & Payment</h3>
+            <form action="." method="post" id="checkout-form">
+                {% csrf_token %}
+
+                {# Checkout Form Fields #}
+                <div class="form-grid">
+                    {% for field in form %}
+                    <div class="form-group field-{{ field.name }} {% if field.name == 'bkash_number' or field.name == 'transaction_id' %}initially-hidden{% endif %}"
+                        style="{% if 'name' in field.name %}grid-column: span 1;{% else %}grid-column: 1 / -1;{% endif %}">
+                        <label>{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="error-text">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="payment-instructions" class="payment-instructions">
+                    <p>
+                        <strong>Payment Instructions:</strong><br>
+                        Please <strong>Send Money Only</strong> to <strong class="highlight-number">01671403438</strong>
+                        (bKash/Nagad Personal).<br>
+                        Then enter your Mobile Number and TrxID above.
+                    </p>
+                </div>
+
+                <input type="submit" value="Place Order" class="btn btn-block btn-primary-dark">
             </form>
         </div>
+    </div>
 
-        <div style="flex: 1; background: #fff; padding: 20px; border: 1px solid #ddd; height: fit-content;">
-            <h3 style="margin-top: 0; color: #5d4037;">Your Order</h3>
-            <ul style="list-style: none; padding: 0;">
+    <div class="checkout-summary-column">
+        <div class="summary-card">
+            <h3 class="card-title">Your Order</h3>
+            <ul class="summary-list">
                 {% for item in cart %}
-                    <li style="border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between;">
-                        <span>{{ item.quantity }}x {{ item.product.name }}</span>
-                        <span>${{ item.total_price }}</span>
-                    </li>
+                <li class="summary-item">
+                    <div class="item-info">
+                        <span class="item-qty">{{ item.quantity }}x</span>
+                        <span class="item-name">{{ item.product.name }}</span>
+                    </div>
+                    <span class="item-price">TK. {{ item.total_price }}</span>
+                </li>
                 {% endfor %}
+                <li class="summary-item shipping-line">
+                    <span>Shipping</span>
+                    <span>TK. <span id="shipping-cost">--</span></span>
+                </li>
             </ul>
-            <div style="border-top: 2px solid #333; margin-top: 15px; padding-top: 15px; font-weight: bold; font-size: 1.2em; display: flex; justify-content: space-between;">
+            <div class="summary-total">
                 <span>Total</span>
-                <span>${{ cart.get_total_price }}</span>
+                <span>TK. <span id="grand-total">{{ cart.get_total_price }}</span></span>
+            </div>
+
+            <div class="secure-badge">
+                <small>🔒 SSL Secure Transaction</small>
             </div>
         </div>
     </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+        const bkashFields = document.querySelectorAll('.field-bkash_number, .field-transaction_id');
+        const instructionBox = document.getElementById('payment-instructions');
+
+        // Shipping Logic variables
+        const shippingSelect = document.getElementById('id_shipping_zone');
+        const shippingCostSpan = document.getElementById('shipping-cost');
+        const grandTotalSpan = document.getElementById('grand-total');
+        const cartTotal = parseFloat("{{ cart.get_total_price }}");
+
+        const shippingRates = {
+            'inside_dhaka': 80,
+            'intercity_dhaka': 120,
+            'outside_dhaka': 150
+        };
+
+        function togglePaymentFields() {
+            let selectedMethod = document.querySelector('input[name="payment_method"]:checked');
+            // Check if selected method is bkash or nagad
+            if (selectedMethod && (selectedMethod.value === 'bkash' || selectedMethod.value === 'nagad')) {
+                bkashFields.forEach(el => el.style.display = 'block');
+                // If it was initially hidden by django loop class text
+                const hiddenEls = document.querySelectorAll('.initially-hidden');
+                hiddenEls.forEach(el => {
+                    el.style.display = 'block';
+                    el.classList.remove('initially-hidden');
+                });
+
+                instructionBox.style.display = 'block';
+            } else {
+                bkashFields.forEach(el => el.style.display = 'none');
+                instructionBox.style.display = 'none';
+            }
+        }
+
+        function updateTotals() {
+            if (!shippingSelect) return;
+            const zone = shippingSelect.value;
+            const cost = shippingRates[zone] || 0;
+
+            if (shippingCostSpan) shippingCostSpan.textContent = cost.toFixed(2);
+
+            const total = cartTotal + cost;
+            if (grandTotalSpan) grandTotalSpan.textContent = total.toFixed(2);
+        }
+
+        // Listen for changes
+        paymentRadios.forEach(radio => {
+            radio.addEventListener('change', togglePaymentFields);
+        });
+
+        if (shippingSelect) {
+            shippingSelect.addEventListener('change', updateTotals);
+        }
+
+        // Run on load (to handle form re-rendering if there are errors)
+        togglePaymentFields();
+        updateTotals();
+    });
+</script>
 {% endblock %}

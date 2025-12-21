@@ -1,0 +1,32 @@
+<script>
+    function setProductView(mode) {
+        const container = document.getElementById('product-container');
+        const btnGrid = document.getElementById('btn-grid');
+        const btnList = document.getElementById('btn-list');
+
+        if (!container || !btnGrid || !btnList) return;
+
+        if (mode === 'list') {
+            container.classList.remove('product-grid');
+            container.classList.add('product-list');
+            btnList.classList.add('active');
+            btnGrid.classList.remove('active');
+            localStorage.setItem('viewMode', 'list');
+        } else {
+            container.classList.remove('product-list');
+            container.classList.add('product-grid');
+            btnGrid.classList.add('active');
+            btnList.classList.remove('active');
+            localStorage.setItem('viewMode', 'grid');
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedMode = localStorage.getItem('viewMode');
+        if (savedMode === 'list') {
+            setProductView('list');
+        }
+    });
+</script>
+{% endblock %}

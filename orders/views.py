@@ -2,28 +2,40 @@ from django.shortcuts import render
 from .models import OrderItem
 from .forms import OrderCreateForm
 from cart.cart import Cart
+from .telegram import send_order_notification
 
 def order_create(request):
     cart = Cart(request)
     if request.method == 'POST':
         form = OrderCreateForm(request.POST)
         if form.is_valid():
-            # 1. Create the order object but DO NOT save to database yet
-            order = form.save(commit=False)
+            # CHANGE STARTS HERE
+            order = form.save(commit=False) # Create the object but don't save to DB yet
             
-            # 2. Check if user is logged in
-            if request.user.is_authenticated:
-                order.user = request.user # Attach the user to the order
-                
-            # 3. Now save the order to the database
-            order.save()
+            if request.user.is_authenticated: # If the user is logged in
+                order.user = request.user     # Attach the user to the order
             
-            # 4. Save the items
+            order.save() # Now save it to DB
+            # CHANGE ENDS HERE
+            
             for item in cart:
                 OrderItem.objects.create(order=order,
                                          product=item['product'],
                                          price=item['price'],
                                          quantity=item['quantity'])
+                # Decrement Stock
+                product = item['product']
+                product.stock -= item['quantity']
+                if product.stock < 0:
+                    product.stock = 0 # Prevent negative stock (safety)
+                product.save()
+            
+            # Send Telegram notification
+            try:
+                send_order_notification(order)
+            except Exception:
+                pass  # Don't fail order if notification fails
+            
             # 5. Clear cart
             cart.clear()
             return render(request, 'orders/order/created.html',

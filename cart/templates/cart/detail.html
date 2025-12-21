@@ -4,56 +4,146 @@
 {% block title %}Your Shopping Cart{% endblock %}
 
 {% block content %}
-    <h2>Your Shopping Cart</h2>
-    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-        <thead>
-            <tr style="border-bottom: 2px solid #5d4037; text-align: left;">
-                <th style="padding: 10px;">Product</th>
-                <th style="padding: 10px;">Quantity</th>
-                <th style="padding: 10px;">Unit Price</th>
-                <th style="padding: 10px;">Total</th>
-                <th style="padding: 10px;">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in cart %}
-                {% with product=item.product %}
-                <tr style="border-bottom: 1px solid #ddd;">
-                    <td style="padding: 10px;">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" style="height: 50px; vertical-align: middle; margin-right: 10px;">
-                        {% endif %}
-                        {{ product.name }}
-                    </td>
-                    <td style="padding: 10px;">
-                        <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                            {% csrf_token %}
-                            {{ item.update_quantity_form.quantity }}
-                            {{ item.update_quantity_form.override }}
-                            <input type="submit" value="Update" style="font-size: 0.8em;">
-                        </form>
-                    </td>
-                    <td style="padding: 10px;">${{ item.price }}</td>
-                    <td style="padding: 10px;">${{ item.total_price }}</td>
-                    <td style="padding: 10px;">
-                        <form action="{% url 'cart:cart_remove' product.id %}" method="post">
-                            {% csrf_token %}
-                            <input type="submit" value="Remove" style="background: #d32f2f; color: white; border: none; padding: 5px 10px; cursor: pointer;">
-                        </form>
-                    </td>
-                </tr>
-                {% endwith %}
-            {% endfor %}
-            <tr style="background-color: #f9f9f9;">
-                <td colspan="3" style="text-align: right; padding: 10px;"><strong>Total:</strong></td>
-                <td colspan="2" style="padding: 10px;"><strong>${{ cart.get_total_price }}</strong></td>
-            </tr>
-        </tbody>
-    </table>
+<div class="container" style="padding: 60px 20px; max-width: 1200px; margin: 0 auto;">
+    <h1 class="section-title text-center" style="margin-bottom: 50px; font-family: 'Cinzel', serif;">Shopping Bag</h1>
 
-    <div style="margin-top: 30px; text-align: right;">
-        <a href="{% url 'store:product_list' %}" style="text-decoration: none; color: #5d4037; margin-right: 20px;">Continue Shopping</a>
-        
-        <a href="{% url 'orders:order_create' %}" style="background-color: #5d4037; color: white; padding: 10px 20px; text-decoration: none;">Proceed to Checkout</a>
+    {% if cart|length > 0 %}
+    <div class="cart-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+        <!-- Cart Items Column -->
+        <div class="cart-items">
+            {% for item in cart %}
+            {% with product=item.product %}
+            <div class="cart-item-card"
+                style="display: flex; gap: 20px; padding: 20px; border: 1px solid #eee; margin-bottom: 20px; background: #fff; align-items: center;">
+
+                <!-- Product Image -->
+                <div class="cart-img" style="width: 100px; height: 100px; flex-shrink: 0;">
+                    <a href="{{ product.get_absolute_url }}">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                            style="width: 100%; height: 100%; object-fit: contain;">
+                        {% else %}
+                        <img src="{% static 'img/no_image.png' %}" alt="No Image"
+                            style="width: 100%; height: 100%; object-fit: contain;">
+                        {% endif %}
+                    </a>
+                </div>
+
+                <!-- Product Details -->
+                <div class="cart-details" style="flex: 1;">
+                    <h3 style="margin: 0 0 10px; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">
+                        <a href="{{ product.get_absolute_url }}" style="color: inherit;">{{ product.name }}</a>
+                    </h3>
+                    {% if item.size_name %}
+                    <p style="margin: 0 0 5px; color: #666; font-size: 0.9rem;">Size: {{ item.size_name }}</p>
+                    {% endif %}
+                    <p style="margin: 0 0 5px; color: #666; font-size: 0.9rem;">Price: TK. {{ item.price }}</p>
+                    <p style="margin: 0; color: #333; font-weight: 500;">Subtotal: TK. {{ item.total_price }}</p>
+                </div>
+
+                <!-- Quantity & Remove -->
+                <div class="cart-actions"
+                    style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                    <form action="{% url 'cart:cart_add' product.id %}" method="post"
+                        style="display: flex; align-items: center; gap: 10px;">
+                        {% csrf_token %}
+                        <!-- Render quantity field manually for styling if needed, or keep generic -->
+                        {{ item.update_quantity_form.quantity }}
+                        {{ item.update_quantity_form.override }}
+                        {% if item.size %}
+                        <input type="hidden" name="size" value="{{ item.size }}">
+                        {% endif %}
+                        <button type="submit"
+                            style="background: none; border: 1px solid #ddd; padding: 5px 10px; cursor: pointer; text-transform: uppercase; font-size: 0.7rem;">Update</button>
+                    </form>
+
+                    <form action="{% url 'cart:cart_remove' product.id %}" method="post">
+                        {% csrf_token %}
+                        {% if item.size %}
+                        <input type="hidden" name="size" value="{{ item.size }}">
+                        {% endif %}
+                        <button type="submit"
+                            style="background: none; border: none; color: #d32f2f; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; padding: 0;">Remove</button>
+                    </form>
+                </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+
+            <div style="margin-top: 20px;">
+                <a href="{% url 'store:product_list' %}" class="btn-outline"
+                    style="text-decoration: none; padding: 12px 25px; display: inline-block;">
+                    &larr; Continue Shopping
+                </a>
+            </div>
+        </div>
+
+        <!-- Order Summary Column -->
+        <div class="cart-summary" style="height: fit-content; position: sticky; top: 100px;">
+            <div class="summary-card" style="background: #fafafa; padding: 30px; border: 1px solid #eee;">
+                <h3
+                    style="margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+                    Order Summary</h3>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.95rem;">
+                    <span>Subtotal</span>
+                    <span>TK. {{ cart.get_total_price }}</span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 0.95rem; color: #666;">
+                    <span>Shipping</span>
+                    <span>Calculated at checkout</span>
+                </div>
+
+                <div
+                    style="display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; font-weight: bold; font-size: 1.2rem;">
+                    <span>Total</span>
+                    <span>TK. {{ cart.get_total_price }}</span>
+                </div>
+
+                <a href="{% url 'orders:order_create' %}" class="btn"
+                    style="display: block; width: 100%; text-align: center; margin-top: 30px; padding: 15px; background: #000; color: #fff; text-decoration: none;">
+                    Proceed to Checkout
+                </a>
+
+                <div style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: #888;">
+                    🔒 Secure Checkout
+                </div>
+            </div>
+        </div>
     </div>
+    {% else %}
+    <div style="text-align: center; padding: 80px 20px;">
+        <p style="font-size: 1.5rem; color: #ccc; margin-bottom: 30px;">Your bag is currently empty.</p>
+        <a href="{% url 'store:product_list' %}" class="btn"
+            style="background: #000; color: #fff; padding: 15px 30px; text-decoration: none;">Start Shopping</a>
+    </div>
+    {% endif %}
+
+    <style>
+        /* Responsive Cart */
+        @media (max-width: 900px) {
+            .cart-layout {
+                grid-template-columns: 1fr !important;
+            }
+
+            .cart-item-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cart-actions {
+                align-items: center !important;
+                width: 100%;
+                flex-direction: row !important;
+                justify-content: center;
+            }
+
+            .cart-img {
+                width: 120px !important;
+                height: 120px !important;
+            }
+        }
+    </style>
+</div>
 {% endblock %}

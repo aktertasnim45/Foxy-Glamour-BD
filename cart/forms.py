@@ -12,3 +12,4 @@ class CartAddProductForm(forms.Form):
         initial=False,
         widget=forms.HiddenInput
     )
+    size = forms.CharField(required=False, widget=forms.HiddenInput)

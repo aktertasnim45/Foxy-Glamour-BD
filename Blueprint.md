@@ -18,7 +18,7 @@ A Django-based e-commerce platform for selling jewelry, focusing on elegance and
 - [x] Basic Views (List & Detail)
 - [x] Basic Templates & Static Files
 
-### Phase 2: Shopping Cart Logic [CURRENT FOCUS]
+### Phase 2: Shopping Cart Logic [COMPLETED]
 - [x] Create `cart` app.
 - [x] Implement Session-based Cart class.
 - [x] Create views to Add/Remove items.
@@ -31,9 +31,15 @@ A Django-based e-commerce platform for selling jewelry, focusing on elegance and
 - [x] Implement Checkout Logic.
 - [x] Success Page & Admin Integration.
 
-### Phase 4: User Authentication [CURRENT FOCUS]
-- [ ] Initialize `accounts` app.
-- [ ] User Registration (Sign Up).
-- [ ] User Login/Logout.
-- [ ] Navbar updates (Show "Login" vs "Logout").
-- [ ] User Dashboard (Order History).
+### Phase 4: User Authentication [COMPLETED]
+- [x] Initialize `accounts` app.
+- [x] User Registration (Sign Up).
+- [x] User Login/Logout.
+- [x] Navbar updates (Show "Login" vs "Logout").
+- [x] User Dashboard (Order History).
+
+### Phase 5: Refinements & Enhancements [CURRENT FOCUS]
+- [x] UI Polish: Fix Product Grid Image sizing (CSS).
+- [x] Feature: Product Search & Filtering.
+- [ ] Feature: Payment Gateway Integration (Stripe).
+- [ ] Deployment Preparation.

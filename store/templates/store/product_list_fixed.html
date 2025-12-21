@@ -1,0 +1,187 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}
+{% if category %}{{ category.name }}{% else %}Foxy Glamour - Home{% endif %}
+{% endblock %}
+
+{% block hero %}
+{% if not category and not request.GET.q and not request.GET.min_price and not request.GET.max_price %}
+<div class="hero-section">
+    {% if active_hero and active_hero.background_type == 'video' and active_hero.background_video %}
+    <video class="hero-video-bg" autoplay muted loop playsinline>
+        <source src="{{ active_hero.background_video.url }}" type="video/mp4">
+    </video>
+    {% elif active_hero and active_hero.background_image %}
+    <div class="hero-bg" style="background-image: url('{{ active_hero.background_image.url }}');"></div>
+    {% else %}
+    <div class="hero-bg"></div>
+    {% endif %}
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+        {% if active_hero %}
+        {% if active_hero.show_logo %}
+        {% if active_hero.logo %}
+        <img src="{{ active_hero.logo.url }}" alt="Foxy Glamour" class="hero-logo">
+        {% else %}
+        <img src="{% static 'img/logo.svg' %}" alt="Foxy Glamour" class="hero-logo">
+        {% endif %}
+        {% endif %}
+        {% if active_hero.show_headline and active_hero.headline %}
+        <h1 class="hero-heading">{{ active_hero.headline }}</h1>
+        {% endif %}
+        {% if active_hero.show_tagline and active_hero.tagline %}
+        <p>{{ active_hero.tagline }}</p>
+        {% endif %}
+
+        {% else %}
+        <img src="{% static 'img/logo.svg' %}" alt="Foxy Glamour" class="hero-logo">
+        <p>Every Piece of Jewelry has a story to tell</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not category and not request.GET.q and not request.GET.min_price and not request.GET.max_price %}
+{# Hero is now in block hero #}
+{% else %}
+<div style="text-align: center; padding: 60px 0 40px;">
+    <h1 style="font-size: 3rem; margin-bottom: 10px;">
+        {% if category %}{{ category.name }}{% else %}Exquisite Jewelry Collection{% endif %}
+    </h1>
+    <p style="color: #666; max-width: 600px; margin: 0 auto; font-size: 1.1rem;">
+        Discover our hand-picked selection of fine jewelry, crafted to perfection.
+    </p>
+</div>
+{% endif %}
+
+<div class="category-panel" style="margin-bottom: 40px; text-align: center;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 25px; font-family: 'Cinzel', serif;">Shop by Category</h2>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+        <a href="{% url 'store:product_list' %}" class="cat-pill {% if not category %}active{% endif %}"
+            style="padding: 12px 25px; border: 1px solid {% if not category %}#452829{% else %}#ddd{% endif %}; background: {% if not category %}#452829{% else %}#fff{% endif %}; color: {% if not category %}#fff{% else %}#000{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
+            All Jewelry
+        </a>
+        {% for c in categories %}
+        <a href="{{ c.get_absolute_url }}" class="cat-pill {% if category.slug == c.slug %}active{% endif %}"
+            style="padding: 12px 25px; border: 1px solid {% if category.slug == c.slug %}#452829{% else %}#ddd{% endif %}; background: {% if category.slug == c.slug %}#452829{% else %}#fff{% endif %}; color: {% if category.slug == c.slug %}#fff{% else %}#452829{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
+            {{ c.name }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+
+<div class="filter-bar"
+    style="justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: none; flex-wrap: wrap;">
+    <div class="sort-wrapper">
+        <label for="sort-select" style="font-size: 0.9rem; text-transform: uppercase;">Sort By:</label>
+        <select id="sort-select" onchange="location = this.value;"
+            style="padding: 8px; border: 1px solid #ddd; margin-left: 10px;">
+            <option value="{{ url_newest }}" {% if is_newest %}selected{% endif %}>Newest</option>
+            <option value="{{ url_price_asc }}" {% if is_price_asc %}selected{% endif %}>Price: Low to High</option>
+            <option value="{{ url_price_desc }}" {% if is_price_desc %}selected{% endif %}>Price: High to Low</option>
+        </select>
+    </div>
+
+    <div class="view-controls" style="margin-bottom: 0;">
+        <button class="view-btn active" onclick="setProductView('grid')" id="btn-grid" title="Grid View">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+        </button>
+        <button class="view-btn" onclick="setProductView('list')" id="btn-list" title="List View">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+</div>
+<!-- Explicitly closing filter-bar -->
+
+<div class="product-grid" id="product-container">
+    {% for product in products %}
+    <div class="product-card">
+        <div class="product-image-wrapper">
+            {% if product.has_discount %}
+            <span class="discount-badge-overlay">-{{ product.discount_percentage|floatformat:0 }}%</span>
+            {% endif %}
+            <a href="{{ product.get_absolute_url }}">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% else %}
+                <img src="{% static 'img/no_image.png' %}" alt="No Image">
+                {% endif %}
+            </a>
+
+            <div class="glass-overlay">
+                <a href="{{ product.get_absolute_url }}" class="glass-btn">View Details</a>
+            </div>
+        </div>
+
+        <div class="product-info-minimal">
+            <h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+            <div class="product-price-row">
+                {% if product.has_discount %}
+                <span class="product-original-price">৳{{ product.price|floatformat:0 }}</span>
+                <span class="product-price-visible">৳{{ product.discounted_price|floatformat:0 }}</span>
+                {% else %}
+                <span class="product-price-visible">৳{{ product.price|floatformat:0 }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+        <p style="color: #888; font-size: 1.2rem; margin-bottom: 20px;">No jewelry found matching your criteria.</p>
+        <a href="{% url 'store:product_list' %}" class="btn">View All Products</a>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function setProductView(mode) {
+        const container = document.getElementById('product-container');
+        const btnGrid = document.getElementById('btn-grid');
+        const btnList = document.getElementById('btn-list');
+
+        if (!container || !btnGrid || !btnList) return;
+
+        if (mode === 'list') {
+            container.classList.remove('product-grid');
+            container.classList.add('product-list');
+            btnList.classList.add('active');
+            btnGrid.classList.remove('active');
+            localStorage.setItem('viewMode', 'list');
+        } else {
+            container.classList.remove('product-list');
+            container.classList.add('product-grid');
+            btnGrid.classList.add('active');
+            btnList.classList.remove('active');
+            localStorage.setItem('viewMode', 'grid');
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedMode = localStorage.getItem('viewMode');
+        if (savedMode === 'list') {
+            setProductView('list');
+        }
+    });
+</script>
+{% endblock %}

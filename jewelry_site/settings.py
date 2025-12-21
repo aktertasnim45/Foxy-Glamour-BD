@@ -10,10 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,22 +30,38 @@ SECRET_KEY = 'django-insecure-7#mp!t=i-h^yi#@6#7$m+=f*+ck($c6d4zbxcs!rday43yj)kw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin', # Add Jazzmin before admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_export',  # Product import/export
     'store.apps.StoreConfig',
     'cart.apps.CartConfig',
     'orders.apps.OrdersConfig',
     'accounts.apps.AccountsConfig',
+]
+
+# ... existing middleware code ...
+
+# Password validation
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 6,
+        }
+    },
 ]
 
 MIDDLEWARE = [
@@ -66,6 +87,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'cart.context_processors.cart',
+                'store.context_processors.categories',
+                'store.context_processors.active_theme',
+                'store.context_processors.active_hero',
             ],
         },
     },
@@ -88,20 +112,8 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# Original validators block removed in favor of the custom one above.
+
 
 
 # Internationalization
@@ -139,3 +151,41 @@ CART_SESSION_ID = 'cart'
 # Authentication Redirects
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+JAZZMIN_SETTINGS = {
+    "site_title": "Foxy Glamour Admin",
+    "site_header": "Foxy Glamour",
+    "site_brand": "Foxy Glamour",
+    "welcome_sign": "Welcome to Foxy Glamour Admin",
+    "copyright": "Foxy Glamour Ltd",
+    "topmenu_links": [
+        {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "View Site", "url": "/", "new_window": True},
+    ],
+    "user_avatar": None,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+}
+
+# Pathao Courier API Settings
+# Credentials are loaded from .env file for security
+PATHAO_BASE_URL = 'https://api-hermes.pathao.com'  # Production URL
+# PATHAO_BASE_URL = 'https://hermes-api.p-stageenv.xyz'  # Sandbox/Test URL
+
+PATHAO_CLIENT_ID = os.getenv('PATHAO_CLIENT_ID', '')
+PATHAO_CLIENT_SECRET = os.getenv('PATHAO_CLIENT_SECRET', '')
+PATHAO_CLIENT_EMAIL = os.getenv('PATHAO_CLIENT_EMAIL', '')
+PATHAO_CLIENT_PASSWORD = os.getenv('PATHAO_CLIENT_PASSWORD', '')
+PATHAO_STORE_ID = os.getenv('PATHAO_STORE_ID', '')
+
+# Sender details for parcels
+PATHAO_SENDER_NAME = 'Foxy Glamour'
+PATHAO_SENDER_PHONE = os.getenv('PATHAO_SENDER_PHONE', '')
+
+# Telegram Bot Notification Settings
+# Get bot token from @BotFather on Telegram
+# Get chat ID by messaging your bot and visiting: https://api.telegram.org/bot<TOKEN>/getUpdates
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
