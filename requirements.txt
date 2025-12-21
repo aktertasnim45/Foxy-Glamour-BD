@@ -1,0 +1,17 @@
+# Django Web Framework
+Django>=5.2.8
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Admin UI Enhancement
+django-jazzmin>=3.0.0
+
+# Product Import/Export
+django-import-export>=4.0.0
+
+# Image Processing (required for ImageField)
+Pillow>=10.0.0
+
+# HTTP Requests (for Pathao API and Telegram)
+requests>=2.31.0
