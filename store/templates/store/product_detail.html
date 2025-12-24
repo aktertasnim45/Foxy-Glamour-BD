@@ -3,6 +3,8 @@
 
 {% block title %}{{ product.name }}{% endblock %}
 
+{% block promo_bar %}{% endblock %}
+
 {% block content %}
 <div class="pdp-container">
 
@@ -114,12 +116,20 @@
         <h1 class="pdp-title">{{ product.name }}</h1>
         {% if product.has_discount %}
         <div class="pdp-price-wrapper">
-            <p class="pdp-price">TK. {{ product.discounted_price }}</p>
-            <p class="pdp-original-price" style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">TK. {{ product.price }}</p>
-            <span class="discount-badge" style="background: #e74c3c; color: #fff; padding: 4px 10px; font-size: 0.75rem; border-radius: 4px; margin-left: 10px;">{% if product.discount_percentage %}{{ product.discount_percentage }}% OFF{% else %}TK. {{ product.discount_amount }} OFF{% endif %}</span>
+            <p class="pdp-price">৳{{ product.discounted_price|floatformat:0 }}</p>
+            <p class="pdp-original-price"
+                style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">৳{{ product.price|floatformat:0 }}</p>
+
+            <span class="discount-badge">
+                {% if product.discount_percentage %}
+                {{ product.discount_percentage }}% OFF
+                {% else %}
+                ৳{{ product.discount_amount|floatformat:0 }} OFF
+                {% endif %}
+            </span>
         </div>
         {% else %}
-        <p class="pdp-price">TK. {{ product.price }}</p>
+        <p class="pdp-price">৳{{ product.price|floatformat:0 }}</p>
         {% endif %}
 
         <!-- Wishlist Toggle -->
@@ -262,34 +272,49 @@
 
     </div>
 
-    <!-- Related Products -->
-    {% if related_products %}
-    <div class="related-products" style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #eee;">
-        <h3
-            style="font-size: 1.4rem; font-weight: 600; text-transform: uppercase; margin-bottom: 30px; letter-spacing: 1px;">
-            You May Also Like</h3>
-        <div class="product-grid">
-            {% for r_product in related_products %}
-            <div class="product-card">
-                <div class="product-image-wrapper">
-                    <a href="{{ r_product.get_absolute_url }}">
-                        {% if r_product.image %}
-                        <img src="{{ r_product.image.url }}" alt="{{ r_product.name }}">
-                        {% endif %}
-                    </a>
-                </div>
-                <div class="product-info-minimal" style="padding-top: 15px;">
-                    <h4 style="font-size: 1rem; margin: 0 0 5px;"><a href="{{ r_product.get_absolute_url }}"
-                            style="text-decoration: none; color: #333;">{{ r_product.name }}</a></h4>
-                    <div style="font-weight: 500; color: #555;">TK. {{ r_product.price }}</div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
+
 
 </div>
+
+{% if related_products %}
+<div class="related-products-section" style="max-width: 1200px; margin: 60px auto; padding: 0 20px;">
+    <h3 style="text-align: center; font-size: 1.8rem; margin-bottom: 30px;">You May Also Like</h3>
+    <div class="product-grid">
+        {% for product in related_products %}
+        <div class="product-card">
+            <div class="product-image-wrapper">
+                {% if product.has_discount %}
+                <span class="discount-badge-overlay">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                {% endif %}
+                <a href="{{ product.get_absolute_url }}">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <img src="{% static 'img/no_image.png' %}" alt="No Image">
+                    {% endif %}
+                </a>
+
+                <div class="glass-overlay">
+                    <a href="{{ product.get_absolute_url }}" class="glass-btn">View Details</a>
+                </div>
+            </div>
+
+            <div class="product-info-minimal">
+                <h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+                <div class="product-price-row">
+                    {% if product.has_discount %}
+                    <span class="product-original-price">TK. {{ product.price|floatformat:0 }}</span>
+                    <span class="product-price-visible">TK. {{ product.discounted_price|floatformat:0 }}</span>
+                    {% else %}
+                    <span class="product-price-visible">TK. {{ product.price|floatformat:0 }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 <script>
     // Quantity Logic

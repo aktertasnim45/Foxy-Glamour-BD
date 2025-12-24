@@ -8,15 +8,74 @@
 {% block hero %}
 {% if not category and not request.GET.q and not request.GET.min_price and not request.GET.max_price %}
 <div class="hero-section">
-    {% if active_hero and active_hero.background_type == 'video' and active_hero.background_video %}
-    <video class="hero-video-bg" autoplay muted loop playsinline>
-        <source src="{{ active_hero.background_video.url }}" type="video/mp4">
-    </video>
-    {% elif active_hero and active_hero.background_image %}
-    <div class="hero-bg" style="background-image: url('{{ active_hero.background_image.url }}');"></div>
-    {% else %}
-    <div class="hero-bg"></div>
-    {% endif %}
+    <!-- DESKTOP HERO (Hidden on Mobile) -->
+    <div class="hero-desktop">
+        {% if active_hero and active_hero.background_type == 'video' and active_hero.background_video %}
+        <video class="hero-video-bg" autoplay muted loop playsinline>
+            <source src="{{ active_hero.background_video.url }}" type="video/mp4">
+        </video>
+        {% elif active_hero and active_hero.background_image %}
+        <div class="hero-bg" style="background-image: url('{{ active_hero.background_image.url }}');"></div>
+        {% else %}
+        <div class="hero-bg"></div>
+        {% endif %}
+    </div>
+
+    <!-- MOBILE HERO (Hidden on Desktop) -->
+    <div class="hero-mobile">
+        {% if active_hero %}
+        {% if active_hero.mobile_background_type == 'video' and active_hero.mobile_background_video %}
+        <video class="hero-video-bg" autoplay muted loop playsinline
+            style="object-fit: cover; height: 100%; width: 100%;">
+            <source src="{{ active_hero.mobile_background_video.url }}" type="video/mp4">
+        </video>
+        {% elif active_hero.mobile_background_image %}
+        <div class="hero-bg" style="background-image: url('{{ active_hero.mobile_background_image.url }}');"></div>
+        {% else %}
+        {# Fallback to desktop image if no mobile specific is set #}
+        {% if active_hero.background_type == 'image' and active_hero.background_image %}
+        <div class="hero-bg" style="background-image: url('{{ active_hero.background_image.url }}');"></div>
+        {% else %}
+        <div class="hero-bg"></div>
+        {% endif %}
+        {% endif %}
+        {% else %}
+        <div class="hero-bg"></div>
+        {% endif %}
+    </div>
+
+    <style>
+        /* Responsive Hero Visibility */
+        @media (max-width: 768px) {
+            .hero-desktop {
+                display: none !important;
+            }
+
+            .hero-mobile {
+                display: block !important;
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .hero-desktop {
+                display: block !important;
+                height: 100%;
+                width: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+
+            .hero-mobile {
+                display: none !important;
+            }
+        }
+    </style>
 
     <div class="hero-overlay"></div>
 
@@ -63,12 +122,12 @@
     <h2 style="font-size: 1.5rem; margin-bottom: 25px; font-family: 'Cinzel', serif;">Shop by Category</h2>
     <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
         <a href="{% url 'store:product_list' %}" class="cat-pill {% if not category %}active{% endif %}"
-            style="padding: 12px 25px; border: 1px solid {% if not category %}#452829{% else %}#ddd{% endif %}; background: {% if not category %}#452829{% else %}#fff{% endif %}; color: {% if not category %}#fff{% else %}#000{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
+            style="padding: 12px 25px; border: 1px solid {% if not category %}#566ee3{% else %}#ddd{% endif %}; background: {% if not category %}#566ee3{% else %}#fff{% endif %}; color: {% if not category %}#fff{% else %}#000{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
             All Jewelry
         </a>
         {% for c in categories %}
         <a href="{{ c.get_absolute_url }}" class="cat-pill {% if category.slug == c.slug %}active{% endif %}"
-            style="padding: 12px 25px; border: 1px solid {% if category.slug == c.slug %}#452829{% else %}#ddd{% endif %}; background: {% if category.slug == c.slug %}#452829{% else %}#fff{% endif %}; color: {% if category.slug == c.slug %}#fff{% else %}#452829{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
+            style="padding: 12px 25px; border: 1px solid {% if category.slug == c.slug %}#566ee3{% else %}#ddd{% endif %}; background: {% if category.slug == c.slug %}#566ee3{% else %}#fff{% endif %}; color: {% if category.slug == c.slug %}#fff{% else %}#566ee3{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
             {{ c.name }}
         </a>
         {% endfor %}
@@ -122,7 +181,8 @@
             {% endif %}
             <a href="{{ product.get_absolute_url }}">
                 {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                    style="object-fit: {{ product.list_image_fit }} !important; object-position: {{ product.list_image_position }} !important;">
                 {% else %}
                 <img src="{% static 'img/no_image.png' %}" alt="No Image">
                 {% endif %}

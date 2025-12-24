@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.utils.html import format_html
+from django.utils.html import format_html, mark_safe
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
@@ -83,9 +83,9 @@ class SizeAdmin(admin.ModelAdmin):
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
-    list_display = ['name', 'slug', 'price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'created', 'updated']
+    list_display = ['name', 'slug', 'price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'list_image_fit', 'list_image_position', 'created', 'updated']
     list_filter = ['available', 'is_adjustable', 'created', 'updated', 'category', 'metal']
-    list_editable = ['price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable'] 
+    list_editable = ['price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'list_image_fit', 'list_image_position'] 
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('sizes',)
     
@@ -102,6 +102,10 @@ class ProductAdmin(ImportExportModelAdmin):
         }),
         ('Jewelry Details', {
             'fields': ('metal', 'gemstone', 'is_adjustable', 'sizes')
+        }),
+        ('List View Customization', {
+            'fields': ('list_image_fit', 'list_image_position'),
+            'description': 'Customize how the product image appears on the homepage list/grid.'
         }),
     )
     
@@ -131,9 +135,13 @@ class HeroSectionAdmin(admin.ModelAdmin):
             'fields': ('name', 'is_active'),
             'description': 'Give this configuration a name. Only one hero can be active at a time.'
         }),
-        ('Background', {
+        ('Background (Desktop)', {
             'fields': ('background_type', 'background_image', 'background_video', 'background_preview_large', 'enable_ken_burns'),
-            'description': 'Choose between image or video. For video, upload MP4 or WEBM (keep under 10MB).'
+            'description': 'Choose between image or video for Desktop. For video, upload MP4 or WEBM.'
+        }),
+        ('Background (Mobile)', {
+            'fields': ('mobile_background_type', 'mobile_background_image', 'mobile_background_video'),
+            'description': 'Optional: Override background for mobile devices. Use vertical assets (e.g., 9:16 aspect ratio).'
         }),
         ('Logo', {
             'fields': ('logo', 'logo_preview', 'show_logo'),
@@ -157,10 +165,10 @@ class HeroSectionAdmin(admin.ModelAdmin):
                 obj.background_image.url
             )
         elif obj.background_type == 'video' and obj.background_video:
-            return format_html(
+            return mark_safe(
                 '<span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px;">🎥 VIDEO</span>'
             )
-        return format_html('<span style="color: #999;">No media</span>')
+        return mark_safe('<span style="color: #999;">No media</span>')
     background_preview.short_description = 'Preview'
     
     def background_preview_large(self, obj):
@@ -175,7 +183,7 @@ class HeroSectionAdmin(admin.ModelAdmin):
                 '<div style="margin: 10px 0;"><video src="{}" style="max-width: 400px; max-height: 250px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" controls muted></video></div>',
                 obj.background_video.url
             )
-        return format_html('<span style="color: #999; font-style: italic;">No background uploaded yet</span>')
+        return mark_safe('<span style="color: #999; font-style: italic;">No background uploaded yet</span>')
     background_preview_large.short_description = 'Background Preview'
     
     def logo_preview(self, obj):
@@ -185,7 +193,7 @@ class HeroSectionAdmin(admin.ModelAdmin):
                 '<div style="margin: 10px 0; background: #333; padding: 20px; border-radius: 8px; display: inline-block;"><img src="{}" style="max-width: 200px; max-height: 80px;"/></div>',
                 obj.logo.url
             )
-        return format_html('<span style="color: #999; font-style: italic;">No logo uploaded. Will use default logo.</span>')
+        return mark_safe('<span style="color: #999; font-style: italic;">No logo uploaded. Will use default logo.</span>')
     logo_preview.short_description = 'Logo Preview'
     
     actions = ['make_active']

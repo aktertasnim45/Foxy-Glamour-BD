@@ -10,13 +10,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}?v=19" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=22" rel="stylesheet">
 </head>
 
 <body {% theme_styles active_theme %}>
+    {% block promo_bar %}
     <div class="promo-bar">
         <p>Delivery Available All over Bangladesh</p>
     </div>
+    {% endblock %}
 
     <header>
         <!-- MOBILE HEADER (Hamburger + Bag) -->

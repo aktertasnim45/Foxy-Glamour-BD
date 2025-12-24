@@ -82,6 +82,16 @@ header {
     z-index: 1000;
 }
 
+/* On pages with hero section, make header transparent and absolute */
+body:has(.hero-section) header {
+    background-color: transparent;
+    border-bottom: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
 .header-top {
     display: flex;
     justify-content: space-between;
@@ -144,9 +154,16 @@ header {
 
 /* MAIN NAVIGATION */
 .main-nav {
+    background: var(--bg-color);
     border-top: 1px solid var(--gray-border);
     padding: 15px 0;
     text-align: center;
+}
+
+/* On pages with hero section, make nav transparent */
+body:has(.hero-section) .main-nav {
+    background: transparent;
+    border-top: none;
 }
 
 .nav-list {
@@ -223,6 +240,7 @@ header {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 40px;
+    background: transparent;
 }
 
 /* Full width container for product grid - like girlsadore.com */
@@ -324,8 +342,8 @@ header {
 .product-image-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 130%;
-    /* Tall portrait ratio like girlsadore.com */
+    padding-top: 100%;
+    /* Square ratio */
     overflow: hidden;
     background-color: #fafafa;
 }
@@ -347,7 +365,7 @@ header {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover !important;
     margin-bottom: 0;
 }
 
@@ -484,9 +502,9 @@ header {
 
 .view-btn:hover,
 .view-btn.active {
-    background: #000;
+    background: #b3bfff;
     color: #fff;
-    border-color: #000;
+    border-color: #b3bfff;
 }
 
 /* RESPONSIVE LIST VIEW */
@@ -812,12 +830,16 @@ header {
 .hero-section {
     position: relative;
     width: 100%;
-    height: 85vh;
-    /* Cinematic height */
+    height: 100vh;
+    /* Full viewport height */
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: -180px;
+    /* Pull up behind the header and promo bar */
+    padding-top: 180px;
+    /* Compensate for negative margin to center content */
     margin-bottom: 60px;
     background-color: var(--primary-color);
 }
@@ -1115,28 +1137,31 @@ header {
     font-weight: 600;
     font-size: 0.85rem;
     letter-spacing: 1.5px;
-    border: 1px solid var(--primary-color);
+    border: 1px solid #697ad1;
     cursor: pointer;
     transition: all 0.3s;
 }
 
 .btn-cart {
-    background-color: var(--primary-color);
+    background-color: #697ad1;
     color: #fff;
 }
 
 .btn-cart:hover {
-    background-color: #333;
+    background-color: #ffffff;
+    color: #697ad1;
+    border: 2px solid #697ad1;
 }
 
 .btn-buy {
-    background-color: #fff;
-    color: var(--primary-color);
+    background-color: #697ad1;
+    color: #fff;
 }
 
 .btn-buy:hover {
-    background-color: var(--primary-color);
-    color: #fff;
+    background-color: #ffffff;
+    color: #697ad1;
+    border: 2px solid #697ad1;
 }
 
 /* PRODUCT META */
@@ -1295,9 +1320,9 @@ header {
 }
 
 .glass-btn:hover {
-    background-color: transparent;
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: #9aa9f5;
+    color: #fff;
+    border-color: #9aa9f5;
 }
 
 .product-info-minimal h3 {
@@ -2013,27 +2038,27 @@ header {
 }
 
 .btn-black {
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    border: 1px solid var(--btn-bg);
+    background: #697ad1;
+    color: #fff;
+    border: 1px solid #697ad1;
 }
 
 .btn-black:hover {
-    background: var(--btn-hover-bg);
-    border-color: var(--btn-hover-bg);
-    color: var(--btn-text);
+    background: #ffffff;
+    border: 2px solid #697ad1;
+    color: #697ad1;
 }
 
 .btn-gold {
-    background: var(--buy-now-bg);
-    color: var(--buy-now-text);
-    border: 1px solid var(--buy-now-bg);
+    background: #697ad1;
+    color: #fff;
+    border: 1px solid #697ad1;
 }
 
 .btn-gold:hover {
-    background: var(--buy-now-hover-bg);
-    border-color: var(--buy-now-hover-bg);
-    color: var(--buy-now-hover-text);
+    background: #ffffff;
+    border: 2px solid #697ad1;
+    color: #697ad1;
 }
 
 .action-buttons button:hover {

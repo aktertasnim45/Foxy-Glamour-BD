@@ -65,6 +65,26 @@ class Product(models.Model):
         help_text="Fixed discount amount in TK"
     )
 
+    # List Image Customization
+    list_image_fit = models.CharField(
+        max_length=20, 
+        choices=[('cover', 'Cover (Crop to fit)'), ('contain', 'Contain (Show full)')],
+        default='cover',
+        verbose_name="List Image Sizing"
+    )
+    list_image_position = models.CharField(
+        max_length=20,
+        choices=[
+            ('center center', 'Center (Default)'),
+            ('top center', 'Top'),
+            ('bottom center', 'Bottom'),
+            ('center left', 'Left'),
+            ('center right', 'Right'),
+        ],
+        default='center center',
+        verbose_name="List Image Position"
+    )
+
     class Meta:
         ordering = ('-created',)
         indexes = [
@@ -94,6 +114,33 @@ class Product(models.Model):
         elif self.discount_amount:
             return max(self.price - self.discount_amount, Decimal('0'))
         return self.price
+
+    def save(self, *args, **kwargs):
+        from decimal import Decimal
+        # Auto-calculate discount_percentage if discount_amount changes
+        if self.price and self.price > 0:
+            should_calculate = False
+            if not self.pk: # New object
+                if self.discount_amount is not None:
+                    should_calculate = True
+            else: # Existing object
+                try:
+                    old_obj = Product.objects.get(pk=self.pk)
+                    # Compare as Decimals to avoid float issues if any, though fields are DecimalFields
+                    if self.discount_amount != old_obj.discount_amount:
+                        should_calculate = True
+                except Product.DoesNotExist:
+                    pass
+            
+            if should_calculate:
+                if self.discount_amount:
+                    # Calculate percentage: (amount / price) * 100
+                    self.discount_percentage = (self.discount_amount / self.price) * Decimal('100')
+                else:
+                    # If amount is removed/cleared, clear percentage too
+                    self.discount_percentage = None
+        
+        super().save(*args, **kwargs)
 
 
 class Wishlist(models.Model):
@@ -176,6 +223,26 @@ class HeroSection(models.Model):
         blank=True, 
         null=True,
         help_text="Upload a video (MP4, WEBM). Keep under 10MB for best performance"
+    )
+
+    # Mobile Background
+    mobile_background_type = models.CharField(
+        max_length=10, 
+        choices=BACKGROUND_CHOICES, 
+        default='image',
+        help_text="Choose background type for mobile devices"
+    )
+    mobile_background_image = models.ImageField(
+        upload_to='hero/mobile/', 
+        blank=True, 
+        null=True,
+        help_text="Upload a vertical image for mobile (e.g., 1080x1920)."
+    )
+    mobile_background_video = models.FileField(
+        upload_to='hero/mobile/videos/', 
+        blank=True, 
+        null=True,
+        help_text="Upload a vertical video for mobile."
     )
     
     # Logo

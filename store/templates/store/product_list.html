@@ -70,12 +70,12 @@
     <h2 style="font-size: 1.5rem; margin-bottom: 25px; font-family: 'Cinzel', serif;">Shop by Category</h2>
     <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
         <a href="{% url 'store:product_list' %}" class="cat-pill {% if not category %}active{% endif %}"
-            style="padding: 12px 25px; border: 1px solid {% if not category %}#452829{% else %}#ddd{% endif %}; background: {% if not category %}#452829{% else %}#fff{% endif %}; color: {% if not category %}#fff{% else %}#000{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
+            style="padding: 12px 25px; border: 1px solid {% if not category %}#566ee3{% else %}#ddd{% endif %}; background: {% if not category %}#566ee3{% else %}#fff{% endif %}; color: {% if not category %}#fff{% else %}#000{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
             All Jewelry
         </a>
         {% for c in categories %}
         <a href="{{ c.get_absolute_url }}" class="cat-pill {% if category.slug == c.slug %}active{% endif %}"
-            style="padding: 12px 25px; border: 1px solid {% if category.slug == c.slug %}#452829{% else %}#ddd{% endif %}; background: {% if category.slug == c.slug %}#452829{% else %}#fff{% endif %}; color: {% if category.slug == c.slug %}#fff{% else %}#452829{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
+            style="padding: 12px 25px; border: 1px solid {% if category.slug == c.slug %}#566ee3{% else %}#ddd{% endif %}; background: {% if category.slug == c.slug %}#566ee3{% else %}#fff{% endif %}; color: {% if category.slug == c.slug %}#fff{% else %}#566ee3{% endif %}; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; transition: all 0.3s;">
             {{ c.name }}
         </a>
         {% endfor %}
