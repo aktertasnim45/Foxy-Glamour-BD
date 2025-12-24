@@ -1509,16 +1509,13 @@ body:has(.hero-section) .main-nav {
     }
 
     .promo-bar {
-        display: block;
-        padding: 8px;
-        /* Slightly smaller padding */
-        font-size: 0.65rem;
+        display: none;
     }
 
     header {
         position: absolute;
-        top: 35px;
-        /* Push down to avoid Promo Bar overlap */
+        top: 0;
+        /* Push down removed */
         left: 0;
         width: 100%;
         background: transparent;

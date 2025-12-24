@@ -10,17 +10,79 @@
 <!-- DEBUG: active_hero.id = {{ active_hero.id }} -->
 {% if not category and not request.GET.q and not request.GET.min_price and not request.GET.max_price %}
 <div class="hero-section">
-    {% if active_hero and active_hero.background_type == 'video' and active_hero.background_video %}
-    {# Video Background #}
-    <video class="hero-video-bg" autoplay muted loop playsinline>
-        <source src="{{ active_hero.background_video.url }}" type="video/mp4">
-    </video>
-    {% else %}
-    {# Image Background (default or from admin) #}
-    <div class="hero-bg{% if active_hero and not active_hero.enable_ken_burns %} no-animation{% endif %}" {% if
-        active_hero and active_hero.background_image %}
-        style="background-image: url('{{ active_hero.background_image.url }}');" {% endif %}></div>
-    {% endif %}
+    <style>
+        .desktop-hero-bg {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .mobile-hero-bg {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        @media (max-width: 900px) {
+            .desktop-hero-bg {
+                display: none;
+            }
+
+            .mobile-hero-bg {
+                display: block;
+            }
+        }
+
+        /* Ensure video/image fills container */
+        .hero-video-bg,
+        .hero-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .hero-bg {
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+
+    {# --- DESKTOP BACKGROUND --- #}
+    <div class="desktop-hero-bg">
+        {% if active_hero and active_hero.background_type == 'video' and active_hero.background_video %}
+        <video class="hero-video-bg" autoplay muted loop playsinline {% if active_hero.background_image
+            %}poster="{{ active_hero.background_image.url }}" {% endif %}>
+            <source src="{{ active_hero.background_video.url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <div class="hero-bg{% if active_hero and not active_hero.enable_ken_burns %} no-animation{% endif %}" {% if
+            active_hero and active_hero.background_image %}
+            style="background-image: url('{{ active_hero.background_image.url }}');" {% endif %}></div>
+        {% endif %}
+    </div>
+
+    {# --- MOBILE BACKGROUND --- #}
+    <div class="mobile-hero-bg">
+        {% if active_hero and active_hero.mobile_background_type == 'video' and active_hero.mobile_background_video %}
+        <video class="hero-video-bg" autoplay muted loop playsinline {% if active_hero.mobile_background_image
+            %}poster="{{ active_hero.mobile_background_image.url }}" {% endif %}>
+            <source src="{{ active_hero.mobile_background_video.url }}" type="video/mp4">
+        </video>
+        {% else %}
+        <div class="hero-bg{% if active_hero and not active_hero.enable_ken_burns %} no-animation{% endif %}"
+            style="background-image: url('{% if active_hero.mobile_background_image %}{{ active_hero.mobile_background_image.url }}{% elif active_hero.background_image %}{{ active_hero.background_image.url }}{% endif %}');">
+        </div>
+        {% endif %}
+    </div>
 
     <div class="hero-overlay"></div>
     <div class="hero-content">
