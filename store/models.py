@@ -294,3 +294,15 @@ class HeroSection(models.Model):
     def __str__(self):
         status = "✓ Active" if self.is_active else "Inactive"
         return f"{self.name} ({status})"
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='products/gallery/%Y/%m/%d')
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created']
+
+    def __str__(self):
+        return f"Image for {self.product.name}"

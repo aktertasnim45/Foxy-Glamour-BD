@@ -51,7 +51,7 @@ def product_list(request, category_slug=None):
         params['sort'] = sort_value
         return f"?{params.urlencode()}"
 
-    return render(request, 'store/product_list_fixed.html', {
+    return render(request, 'store/product_list.html', {
         'category': category,
         'categories': categories,
         'products': products,

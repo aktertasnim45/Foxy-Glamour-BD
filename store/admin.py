@@ -3,7 +3,7 @@ from django.utils.html import format_html, mark_safe
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
-from .models import Category, Product, Size, Theme, HeroSection
+from .models import Category, Product, Size, Theme, HeroSection, ProductImage
 
 
 # ==========================================
@@ -79,10 +79,25 @@ class SizeAdmin(admin.ModelAdmin):
     list_display = ['name', 'code']
 
 
+
 # Customizing the Admin interface for Product with Import/Export
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1  # Standard to show 1 empty slot, but user can add more
+    readonly_fields = ['image_preview']
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px;" />',
+                obj.image.url
+            )
+        return ""
+
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
+    inlines = [ProductImageInline]
     list_display = ['name', 'slug', 'price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'list_image_fit', 'list_image_position', 'created', 'updated']
     list_filter = ['available', 'is_adjustable', 'created', 'updated', 'category', 'metal']
     list_editable = ['price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'list_image_fit', 'list_image_position'] 

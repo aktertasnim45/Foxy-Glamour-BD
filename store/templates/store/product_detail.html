@@ -21,9 +21,12 @@
         <div class="desktop-gallery mobile-hidden">
             <div class="desktop-thumbs">
                 {% if product.image %}
+                <!-- Main Image -->
                 <img src="{{ product.image.url }}" class="d-thumb active" onclick="changeDesktopImage(this.src, this)">
-                <img src="{{ product.image.url }}" class="d-thumb" onclick="changeDesktopImage(this.src, this)">
-                <img src="{{ product.image.url }}" class="d-thumb" onclick="changeDesktopImage(this.src, this)">
+                <!-- Gallagher Images -->
+                {% for img in product.images.all %}
+                <img src="{{ img.image.url }}" class="d-thumb" onclick="changeDesktopImage(this.src, this)">
+                {% endfor %}
                 {% else %}
                 <img src="{% static 'img/no_image.png' %}" class="d-thumb active">
                 {% endif %}
@@ -52,6 +55,7 @@
             <div class="gallery-slider" id="gallerySlider"
                 style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; cursor: grab; scrollbar-width: none;">
                 {% if product.image %}
+                <!-- Main Image -->
                 <div class="gallery-slide mobile-zoom-slide" style="flex: 0 0 100%; scroll-snap-align: center;"
                     onclick="openMobileLightbox(this.querySelector('img').src)">
                     <img src="{{ product.image.url }}" alt="{{ product.name }}"
@@ -65,9 +69,12 @@
                         </svg>
                     </div>
                 </div>
+
+                <!-- Additional Images -->
+                {% for img in product.images.all %}
                 <div class="gallery-slide mobile-zoom-slide" style="flex: 0 0 100%; scroll-snap-align: center;"
                     onclick="openMobileLightbox(this.querySelector('img').src)">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }} View 2"
+                    <img src="{{ img.image.url }}" alt="{{ product.name }} View {{ forloop.counter }}"
                         style="width: 100%; height: auto; user-select: none;">
                     <div class="mobile-zoom-icon">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -78,19 +85,8 @@
                         </svg>
                     </div>
                 </div>
-                <div class="gallery-slide mobile-zoom-slide" style="flex: 0 0 100%; scroll-snap-align: center;"
-                    onclick="openMobileLightbox(this.querySelector('img').src)">
-                    <img src="{{ product.image.url }}" alt="{{ product.name }} View 3"
-                        style="width: 100%; height: auto; user-select: none;">
-                    <div class="mobile-zoom-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
-                            <path d="M11 8v6M8 11h6"></path>
-                        </svg>
-                    </div>
-                </div>
+                {% endfor %}
+
                 {% else %}
                 <div class="gallery-slide" style="flex: 0 0 100%; scroll-snap-align: center;">
                     <img src="{% static 'img/no_image.png' %}" alt="No Image" style="width: 100%; height: auto;">
@@ -118,7 +114,8 @@
         <div class="pdp-price-wrapper">
             <p class="pdp-price">৳{{ product.discounted_price|floatformat:0 }}</p>
             <p class="pdp-original-price"
-                style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">৳{{ product.price|floatformat:0 }}</p>
+                style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">৳{{
+                product.price|floatformat:0 }}</p>
 
             <span class="discount-badge">
                 {% if product.discount_percentage %}
