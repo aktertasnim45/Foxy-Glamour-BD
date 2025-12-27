@@ -96,6 +96,14 @@ class Product(models.Model):
         verbose_name="List Image Position"
     )
 
+    # SEO Fields
+    meta_title = models.CharField(max_length=200, blank=True, null=True, help_text="Custom SEO title (leave blank to use product name)")
+    meta_description = models.TextField(blank=True, null=True, help_text="SEO description for search engines")
+    meta_keywords = models.CharField(max_length=255, blank=True, null=True, help_text="Comma-separated keywords for SEO")
+    
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
     class Meta:
         ordering = ('-created',)
         indexes = [

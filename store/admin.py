@@ -139,6 +139,11 @@ class ProductAdmin(ImportExportModelAdmin):
             'fields': ('list_image_fit', 'list_image_position'),
             'description': 'Customize how the product image appears on the homepage list/grid.'
         }),
+        ('SEO Settings', {
+            'fields': ('meta_title', 'meta_description', 'meta_keywords'),
+            'classes': ('collapse',),
+            'description': 'Optimize this product for search engines.'
+        }),
     )
     
     class Media:

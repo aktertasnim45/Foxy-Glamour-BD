@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /cart/
+Disallow: /orders/
+Disallow: /accounts/
+
+Sitemap: https://www.foxyglamourbd.com/sitemap.xml

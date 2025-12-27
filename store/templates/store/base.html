@@ -6,11 +6,32 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}My Shop{% endblock %}</title>
+    <title>{% block title %}Foxy Glamour BD - Premium Jewelry{% endblock %}</title>
+
+    {% block meta_tags %}
+    <meta name="description"
+        content="{% block meta_description %}Premium jewelry and fashion accessories in Bangladesh. Rings, Necklaces, Bracelets and more.{% endblock %}">
+    <meta name="keywords"
+        content="{% block meta_keywords %}jewelry, accessories, fashion, bangladesh, earrings, necklace, rings{% endblock %}">
+
+    <!-- Open Graph for Social Media -->
+    <meta property="og:title" content="{% block og_title %}Foxy Glamour BD{% endblock %}">
+    <meta property="og:description"
+        content="{% block og_description %}Premium jewelry and fashion accessories in Bangladesh.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'img/logo.svg' %}{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ self.og_title }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ self.og_description }}{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ self.og_image }}{% endblock %}">
+    {% endblock %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}?v=22" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=23" rel="stylesheet">
 </head>
 
 <body {% theme_styles active_theme %}>
