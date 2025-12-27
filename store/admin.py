@@ -3,7 +3,7 @@ from django.utils.html import format_html, mark_safe
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
-from .models import Category, Product, Size, Color, Theme, HeroSection, ProductImage
+from .models import Category, Product, Size, Color, Theme, HeroSection, ProductImage, ProductVariant
 
 
 # ==========================================
@@ -103,10 +103,15 @@ class ProductImageInline(admin.TabularInline):
             )
         return ""
 
+class ProductVariantInline(admin.TabularInline):
+    model = ProductVariant
+    extra = 1
+
+
 @admin.register(Product)
 class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
-    inlines = [ProductImageInline]
+    inlines = [ProductImageInline, ProductVariantInline]
     list_display = ['name', 'price', 'stock', 'available', 'display_sizes', 'display_colors', 'updated']
     list_filter = ['available', 'is_adjustable', 'created', 'updated', 'category', 'metal']
     list_editable = ['price', 'stock', 'available'] 

@@ -325,3 +325,27 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.product.name}"
+
+
+class ProductVariant(models.Model):
+    """
+    Manages stock for specific product variations (Size + Color).
+    Overrides the global product stock if variants exist.
+    """
+    product = models.ForeignKey(Product, related_name='variants', on_delete=models.CASCADE)
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
+    color = models.ForeignKey(Color, on_delete=models.SET_NULL, null=True, blank=True)
+    stock = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        unique_together = ('product', 'size', 'color')
+        verbose_name = "Product Variation"
+        verbose_name_plural = "Product Variations"
+
+    def __str__(self):
+        variant_name = self.product.name
+        if self.size:
+            variant_name += f" - Size: {self.size.code}"
+        if self.color:
+            variant_name += f" - Color: {self.color.name}"
+        return variant_name

@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+import json
 from .models import Category, Product
 from cart.forms import CartAddProductForm
 from django.db.models import Q
@@ -78,10 +79,21 @@ def product_detail(request, id, slug):
     # Related Products (Same category, excluding current)
     related_products = Product.objects.filter(category=product.category, available=True).exclude(id=product.id)[:4]
 
+    # Serialize variants for frontend logic
+    variants_data = []
+    if product.variants.exists():
+        for v in product.variants.all():
+            variants_data.append({
+                'size': v.size.code if v.size else 'Adjustable', # Assuming 'Adjustable' or None map to null/string
+                'color': v.color.code if v.color else None,
+                'stock': v.stock
+            })
+            
     return render(request, 'store/product_detail.html', {
         'product': product, 
         'cart_product_form': cart_product_form,
-        'related_products': related_products
+        'related_products': related_products,
+        'variants_json': json.dumps(variants_data)
     })
 
 def search(request):

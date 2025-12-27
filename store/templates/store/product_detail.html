@@ -132,7 +132,9 @@ from Foxy Glamour.{% endif %}{% endblock %}
         {% if product.has_discount %}
         <div class="pdp-price-wrapper">
             <p class="pdp-price">TK. {{ product.discounted_price|floatformat:0 }}</p>
-            <p class="pdp-original-price" style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">TK. {{ product.price|floatformat:0 }}</p>
+            <p class="pdp-original-price"
+                style="text-decoration: line-through; color: #999; font-size: 0.9rem; margin: 0;">TK. {{
+                product.price|floatformat:0 }}</p>
 
             <span class="discount-badge">
                 {% if product.discount_percentage %}
@@ -233,7 +235,9 @@ from Foxy Glamour.{% endif %}{% endblock %}
                 </div>
 
                 <div class="action-buttons">
-                    <button type="submit" class="btn-black">ADD TO CART</button>
+                    <button type="submit" id="addToCartBtn" class="btn-black">ADD TO CART</button>
+                    <div id="stock-message" style="margin-top: 10px; font-weight: bold; color: #d32f2f; display: none;">
+                    </div>
                     <button type="button" class="btn-gold" onclick="buyNow()">BUY NOW</button>
                 </div>
             </div>
@@ -437,12 +441,118 @@ from Foxy Glamour.{% endif %}{% endblock %}
         if (hiddenInput) {
             hiddenInput.value = value;
         }
+        checkDetailStock();
     }
 
     function updateSelectedColor(value) {
         const hiddenInput = document.getElementById('id_color');
         if (hiddenInput) {
             hiddenInput.value = value;
+        }
+        checkDetailStock();
+    }
+
+    // ===================================
+    // VARIATION STOCK LOGIC
+    // ===================================
+    // Safe injection of variants data; defaults to [] if empty
+    const productVariants = {{ variants_json| safe }};
+
+    function checkDetailStock() {
+        // If no variants, do nothing (rely on server-side global stock)
+        if (!productVariants || productVariants.length === 0) return;
+
+        const sizeInput = document.getElementById('id_size');
+        const colorInput = document.getElementById('id_color');
+        const btn = document.getElementById('addToCartBtn');
+        const msg = document.getElementById('stock-message');
+
+        if (!sizeInput || !colorInput || !btn) return;
+
+        const selectedSize = sizeInput.value;
+        const selectedColor = colorInput.value;
+
+        // If we have selections, check matches
+        // Note: Some products might only have Size or only Color. 
+        // We need to know which ones are relevant.
+        // Simple logic: Find exact match in variants
+
+        // Filter variants that match the current selection
+        // If a field is blank in the variant (e.g. no color), it matches 'null' or empty string?
+        // Our view sends: 'size': code, 'color': code/None.
+
+        // We only check if the USER has made a selection for the field IF the product actually has options for it.
+        // However, the hidden inputs are only populated when options are selected.
+
+        // Let's search for a variant that matches.
+        const match = productVariants.find(v => {
+            const sizeMatch = (v.size === selectedSize) || (v.size === 'Adjustable' && selectedSize === 'Adjustable'); // Strict match
+            // For color: if v.color is null, it matches if selectedColor is empty? 
+            // Or does every variant have to have size AND color?
+            // The model says null=True.
+            const colorMatch = (v.color === selectedColor) || (!v.color && !selectedColor);
+
+            return sizeMatch && colorMatch;
+        });
+
+        if (match) {
+            if (match.stock > 0) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.textContent = 'ADD TO CART';
+                msg.style.display = 'none';
+
+                // Optional: Show "Only X left"
+                if (match.stock < 5) {
+                    msg.textContent = `Only ${match.stock} left!`;
+                    msg.style.color = '#e67e22'; // Orange warning
+                    msg.style.display = 'block';
+                }
+            } else {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.textContent = 'OUT OF STOCK';
+                msg.textContent = 'Selected variation is out of stock.';
+                msg.style.color = '#d32f2f';
+                msg.style.display = 'block';
+            }
+        } else {
+            // No match found yet. 
+            // This happens if user hasn't selected both Size and Color (if both required).
+            // Or if the combination doesn't exist.
+
+            // Check if user has "finished" selection. 
+            // If the product has options but user hasn't selected them, we don't disable yet (or do we?).
+            // Standard UX: detailed check only when full selection is made.
+
+            // Actually, if we have variants, we should probably enforce selection.
+            // But for now, let's just valid if we find a specific "Out of Stock" match. 
+            // If combination doesn't exist at all, we might want to say "Unavailable".
+
+            // Let's wait for full selection?
+            // If product has colors (color select exists) and color value is empty -> wait.
+            const hasColorSelect = document.getElementById('color-select');
+            const hasSizeSelect = document.getElementById('size-select-us'); // or id_size_adjustable
+
+            const colorSelected = !hasColorSelect || selectedColor;
+            const sizeSelected = !!selectedSize;
+
+            if (colorSelected && sizeSelected) {
+                // Full selection made but no variant found -> Unavailable
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.textContent = 'UNAVAILABLE';
+                msg.textContent = 'This combination is not available.';
+                msg.style.display = 'block';
+            } else {
+                // Incomplete selection
+                btn.disabled = false; // Let server handle "Field required" or disable until selected?
+                // Usually better to disable until selected, but let's stick to simple stock check for now.
+                // Reset to default state
+                btn.style.opacity = '1';
+                btn.textContent = 'ADD TO CART';
+                msg.style.display = 'none';
+            }
         }
     }
 

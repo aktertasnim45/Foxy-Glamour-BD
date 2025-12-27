@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from store.models import Product
+from store.models import Product, Size, Color, ProductVariant
 from .cart import Cart
 from .forms import CartAddProductForm
 
@@ -20,16 +20,48 @@ def cart_add(request, product_id):
             
         color_to_add = cd.get('color')
 
-        # Calculate current quantity of this product in cart
+        # Variation Stock Logic
+        variant = None
+        stock_limit = product.stock
+        
+        # Try to find specific variant
+        if product.variants.exists():
+            try:
+                # Resolve Size object (handle 'Adjustable' or None)
+                s_obj = None
+                if size_to_add and size_to_add != 'Adjustable':
+                    s_obj = Size.objects.filter(code=size_to_add).first()
+                
+                # Resolve Color object
+                c_obj = None
+                if color_to_add:
+                    c_obj = Color.objects.filter(code=color_to_add).first()
+
+                # Look for exact variant match
+                variant = ProductVariant.objects.filter(product=product, size=s_obj, color=c_obj).first()
+                
+                if variant:
+                    stock_limit = variant.stock
+            except Exception as e:
+                # Fallback to global stock if something fails
+                pass
+
+        # Calculate current quantity of this specific variation in cart
         current_quantity = 0
         for item in cart:
             if str(item['product'].id) == str(product.id):
-                current_quantity += item['quantity']
+                # If we found a variant, only count items matching this variation
+                if variant:
+                    if item.get('size') == size_to_add and item.get('color') == color_to_add:
+                        current_quantity += item['quantity']
+                else:
+                     # Legacy/Global Check: Count all items of this product
+                    current_quantity += item['quantity']
 
         # Check stock limit
         if not cd['override']:
-            if current_quantity + cd['quantity'] > product.stock:
-                messages.warning(request, f'Sorry, only {product.stock} items are available. You already have {current_quantity} in your cart.')
+            if current_quantity + cd['quantity'] > stock_limit:
+                messages.warning(request, f'Sorry, only {stock_limit} items are available in this variation. You already have {current_quantity} in your cart.')
                 return redirect('store:product_detail', id=product.id, slug=product.slug)
         else:
             # For override (update quantity in cart), we need to be careful.
@@ -47,8 +79,8 @@ def cart_add(request, product_id):
                      break
             
             new_total = (current_quantity - old_qty_of_this_item) + cd['quantity']
-            if new_total > product.stock:
-                messages.warning(request, f'Sorry, you cannot add that amount. Only {product.stock} items are available in total.')
+            if new_total > stock_limit:
+                messages.warning(request, f'Sorry, you cannot add that amount. Only {stock_limit} items are available.')
                 # If updating from cart detail, we usually redirect to cart_detail
                 return redirect('cart:cart_detail')
 
