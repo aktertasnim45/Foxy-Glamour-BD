@@ -13,3 +13,4 @@ class CartAddProductForm(forms.Form):
         widget=forms.HiddenInput
     )
     size = forms.CharField(required=False, widget=forms.HiddenInput)
+    color = forms.CharField(required=False, widget=forms.HiddenInput)

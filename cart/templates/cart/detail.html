@@ -37,6 +37,9 @@
                     {% if item.size_name %}
                     <p style="margin: 0 0 5px; color: #666; font-size: 0.9rem;">Size: {{ item.size_name }}</p>
                     {% endif %}
+                    {% if item.color_name %}
+                    <p style="margin: 0 0 5px; color: #666; font-size: 0.9rem;">Color: {{ item.color_name }}</p>
+                    {% endif %}
                     <p style="margin: 0 0 5px; color: #666; font-size: 0.9rem;">Price: TK. {{ item.price }}</p>
                     <p style="margin: 0; color: #333; font-weight: 500;">Subtotal: TK. {{ item.total_price }}</p>
                 </div>
@@ -53,6 +56,9 @@
                         {% if item.size %}
                         <input type="hidden" name="size" value="{{ item.size }}">
                         {% endif %}
+                        {% if item.color %}
+                        <input type="hidden" name="color" value="{{ item.color }}">
+                        {% endif %}
                         <button type="submit"
                             style="background: none; border: 1px solid #ddd; padding: 5px 10px; cursor: pointer; text-transform: uppercase; font-size: 0.7rem;">Update</button>
                     </form>
@@ -61,6 +67,9 @@
                         {% csrf_token %}
                         {% if item.size %}
                         <input type="hidden" name="size" value="{{ item.size }}">
+                        {% endif %}
+                        {% if item.color %}
+                        <input type="hidden" name="color" value="{{ item.color }}">
                         {% endif %}
                         <button type="submit"
                             style="background: none; border: none; color: #d32f2f; cursor: pointer; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; padding: 0;">Remove</button>

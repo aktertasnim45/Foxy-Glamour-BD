@@ -29,6 +29,16 @@ class Size(models.Model):
     def __str__(self):
         return self.name
 
+class Color(models.Model):
+    name = models.CharField(max_length=20) # e.g. "Red", "Blue", "Gold"
+    code = models.SlugField(max_length=20, unique=True) # e.g. "red", "blue", "gold"
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
@@ -52,6 +62,7 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     is_adjustable = models.BooleanField(default=False, verbose_name="Is Adjustable Ring")
     sizes = models.ManyToManyField(Size, blank=True, related_name='products')
+    colors = models.ManyToManyField(Color, blank=True, related_name='products')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     

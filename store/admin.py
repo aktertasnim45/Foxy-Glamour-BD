@@ -3,7 +3,7 @@ from django.utils.html import format_html, mark_safe
 from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget, ManyToManyWidget
-from .models import Category, Product, Size, Theme, HeroSection, ProductImage
+from .models import Category, Product, Size, Color, Theme, HeroSection, ProductImage
 
 
 # ==========================================
@@ -21,15 +21,20 @@ class ProductResource(resources.ModelResource):
         attribute='sizes',
         widget=ManyToManyWidget(Size, separator=',', field='code')
     )
+    colors = fields.Field(
+        column_name='colors',
+        attribute='colors',
+        widget=ManyToManyWidget(Color, separator=',', field='code')
+    )
     
     class Meta:
         model = Product
         fields = ('id', 'name', 'slug', 'category', 'price', 'stock', 
                   'available', 'metal', 'gemstone', 'is_adjustable', 
-                  'sizes', 'description')
+                  'sizes', 'colors', 'description')
         export_order = ('id', 'name', 'slug', 'category', 'price', 'stock',
                        'available', 'metal', 'gemstone', 'is_adjustable', 
-                       'sizes', 'description')
+                       'sizes', 'colors', 'description')
         import_id_fields = ('id',)
         skip_unchanged = True
         report_skipped = True
@@ -78,6 +83,10 @@ class CategoryAdmin(ImportExportModelAdmin):
 class SizeAdmin(admin.ModelAdmin):
     list_display = ['name', 'code']
 
+@admin.register(Color)
+class ColorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'code']
+
 
 
 # Customizing the Admin interface for Product with Import/Export
@@ -98,11 +107,19 @@ class ProductImageInline(admin.TabularInline):
 class ProductAdmin(ImportExportModelAdmin):
     resource_class = ProductResource
     inlines = [ProductImageInline]
-    list_display = ['name', 'slug', 'price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'list_image_fit', 'list_image_position', 'created', 'updated']
+    list_display = ['name', 'price', 'stock', 'available', 'display_sizes', 'display_colors', 'updated']
     list_filter = ['available', 'is_adjustable', 'created', 'updated', 'category', 'metal']
-    list_editable = ['price', 'discount_percentage', 'discount_amount', 'stock', 'available', 'is_adjustable', 'list_image_fit', 'list_image_position'] 
+    list_editable = ['price', 'stock', 'available'] 
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('sizes',)
+    filter_horizontal = ('sizes', 'colors')
+
+    def display_sizes(self, obj):
+        return ", ".join([s.code for s in obj.sizes.all()])
+    display_sizes.short_description = 'Sizes'
+
+    def display_colors(self, obj):
+        return ", ".join([c.name for c in obj.colors.all()])
+    display_colors.short_description = 'Colors'
     
     fieldsets = (
         (None, {
@@ -116,7 +133,7 @@ class ProductAdmin(ImportExportModelAdmin):
             'fields': ('available', 'stock')
         }),
         ('Jewelry Details', {
-            'fields': ('metal', 'gemstone', 'is_adjustable', 'sizes')
+            'fields': ('metal', 'gemstone', 'is_adjustable', 'sizes', 'colors')
         }),
         ('List View Customization', {
             'fields': ('list_image_fit', 'list_image_position'),

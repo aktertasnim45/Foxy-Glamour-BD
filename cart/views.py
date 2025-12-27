@@ -17,6 +17,8 @@ def cart_add(request, product_id):
         size_to_add = cd.get('size')
         if product.is_adjustable:
             size_to_add = "Adjustable"
+            
+        color_to_add = cd.get('color')
 
         # Calculate current quantity of this product in cart
         current_quantity = 0
@@ -34,25 +36,13 @@ def cart_add(request, product_id):
             # current_quantity includes the old quantity of the item being updated.
             # We need to find the specific item being updated to subtract its old quantity.
             
-            # Identify the key for the item being updated
-            # This is tricky because `cart` iterator doesn't give us the key directly easily, 
-            # but we can filter by product_id and size.
             old_qty_of_this_item = 0
             for item in cart:
-                 # Check if this is the item we are updating
-                 # item['product'] is the product object
-                 # item['size'] is the size code (or None)
-                 
-                 # The 'size' in item might be None, "Adjustable", or a code.
-                 # size_to_add is what we are updating TO. Presumably we are updating the SAME size.
-                 
-                 # In cart.py, iterating yields item dict.
-                 # We can check item['product'].id and item['size'].
-                 
                  # Standardize comparison
                  item_size = item.get('size')
+                 item_color = item.get('color')
                  
-                 if str(item['product'].id) == str(product.id) and item_size == size_to_add:
+                 if str(item['product'].id) == str(product.id) and item_size == size_to_add and item_color == color_to_add:
                      old_qty_of_this_item = item['quantity']
                      break
             
@@ -65,7 +55,8 @@ def cart_add(request, product_id):
         cart.add(product=product,
                  quantity=cd['quantity'],
                  override_quantity=cd['override'],
-                 size=size_to_add)
+                 size=size_to_add,
+                 color=color_to_add)
     else:
         # Debugging: Print errors to console
         print(f"Cart Add Form Errors: {form.errors}")
@@ -80,7 +71,8 @@ def cart_remove(request, product_id):
     cart = Cart(request)
     product = get_object_or_404(Product, id=product_id)
     size = request.POST.get('size')
-    cart.remove(product, size=size)
+    color = request.POST.get('color')
+    cart.remove(product, size=size, color=color)
     return redirect('cart:cart_detail')
 
 def cart_detail(request):

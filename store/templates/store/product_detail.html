@@ -147,7 +147,26 @@
                 <input type="hidden" name="quantity" id="id_quantity" value="1">
                 <input type="hidden" name="override" id="id_override" value="False">
                 <input type="hidden" name="size" id="id_size" value="">
+                <input type="hidden" name="color" id="id_color" value="">
             </div>
+
+            <!-- Color Selector (New) -->
+            {% if product.colors.exists %}
+            <div class="color-selector-wrapper" style="margin-bottom: 20px;">
+                <div class="size-tools" style="margin-bottom: 8px;">
+                    <label style="font-weight: 500; font-size: 0.9rem;">Color</label>
+                </div>
+
+                <select id="color-select" class="size-dropdown"
+                    style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 0;"
+                    onchange="updateSelectedColor(this.value)">
+                    <option value="" selected disabled>Choose Color</option>
+                    {% for color in product.colors.all %}
+                    <option value="{{ color.code }}">{{ color.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
 
             <!-- Size Selector -->
             {% if not product.is_adjustable %}
@@ -398,6 +417,13 @@
         // Find the hidden input 'size' rendered by Django form
         // Since we added size field to form, it should start with id_size
         const hiddenInput = document.getElementById('id_size');
+        if (hiddenInput) {
+            hiddenInput.value = value;
+        }
+    }
+
+    function updateSelectedColor(value) {
+        const hiddenInput = document.getElementById('id_color');
         if (hiddenInput) {
             hiddenInput.value = value;
         }

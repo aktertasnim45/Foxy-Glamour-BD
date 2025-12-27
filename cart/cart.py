@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django.conf import settings
-from store.models import Product, Size
+from store.models import Product, Size, Color
 
 class Cart:
     def __init__(self, request):
@@ -14,23 +14,28 @@ class Cart:
             cart = self.session[settings.CART_SESSION_ID] = {}
         self.cart = cart
 
-    def add(self, product, quantity=1, override_quantity=False, size=None):
+    def add(self, product, quantity=1, override_quantity=False, size=None, color=None):
         """
         Add a product to the cart or update its quantity.
         """
         product_id = str(product.id)
-        # Create a unique key for the cart item based on product and size
+        # Create a unique key using both size and color
+        # Format: {id}_{size}_{color} or {id}_{size} or {id}
+        parts = [product_id]
         if size:
-            cart_item_key = f"{product_id}_{size}"
-        else:
-            cart_item_key = product_id
+            parts.append(str(size))
+        if color:
+            parts.append(str(color))
+            
+        cart_item_key = "_".join(parts)
 
         if cart_item_key not in self.cart:
             self.cart[cart_item_key] = {
                 'quantity': 0, 
                 'price': str(product.price),
                 'product_id': product_id,
-                'size': size
+                'size': size,
+                'color': color
             }
         
         if override_quantity:
@@ -43,15 +48,18 @@ class Cart:
         # mark the session as "modified" to make sure it gets saved
         self.session.modified = True
 
-    def remove(self, product, size=None):
+    def remove(self, product, size=None, color=None):
         """
         Remove a product from the cart.
         """
         product_id = str(product.id)
+        parts = [product_id]
         if size:
-            cart_item_key = f"{product_id}_{size}"
-        else:
-            cart_item_key = product_id
+            parts.append(str(size))
+        if color:
+            parts.append(str(color))
+            
+        cart_item_key = "_".join(parts)
 
         if cart_item_key in self.cart:
             del self.cart[cart_item_key]
@@ -78,19 +86,31 @@ class Cart:
             if '_' not in key:
                 product_ids.add(key)
 
-        # Collect all unique size codes from cart items
+        # Collect all unique size and color codes from cart items
         size_codes = set()
+        color_codes = set()
+        
         for item in self.cart.values():
             s = item.get('size')
             if s and s != "Adjustable":
                 size_codes.add(s)
+            
+            c = item.get('color')
+            if c:
+                color_codes.add(c)
         
-        # Fetch Size objects
+        # Fetch Size and Color objects
         size_map = {}
         if size_codes:
             sizes = Size.objects.filter(code__in=size_codes)
             for size in sizes:
                 size_map[size.code] = size.name
+
+        color_map = {}
+        if color_codes:
+            colors = Color.objects.filter(code__in=color_codes)
+            for color in colors:
+                color_map[color.code] = color.name
 
         products = Product.objects.filter(id__in=product_ids)
         
@@ -121,6 +141,13 @@ class Cart:
                     item['size_name'] = size_map[item_size]
                 else:
                     item['size_name'] = item_size # Fallback to code/value if not found
+
+                # Resolve Color Name
+                item_color = item.get('color')
+                if item_color in color_map:
+                    item['color_name'] = color_map[item_color]
+                else:
+                    item['color_name'] = item_color
 
                 yield item
 
