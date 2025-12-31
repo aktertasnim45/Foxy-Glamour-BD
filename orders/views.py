@@ -15,6 +15,11 @@ def order_create(request):
             if request.user.is_authenticated: # If the user is logged in
                 order.user = request.user     # Attach the user to the order
             
+            # Apply mobile payment discount for bKash/Nagad
+            from .models import Order
+            if order.payment_method in ['bkash', 'nagad']:
+                order.payment_discount = Order.MOBILE_PAYMENT_DISCOUNT
+            
             order.save() # Now save it to DB
             # CHANGE ENDS HERE
             
@@ -22,6 +27,7 @@ def order_create(request):
                 OrderItem.objects.create(order=order,
                                          product=item['product'],
                                          price=item['price'],
+                                         cost_price=item['product'].cost_price,
                                          quantity=item['quantity'])
                 # Decrement Stock
                 product = item['product']

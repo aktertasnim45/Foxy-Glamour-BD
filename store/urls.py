@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, dashboard_views
 
 
 app_name = 'store'
@@ -15,5 +15,6 @@ urlpatterns = [
     path('wishlist/add/<int:product_id>/', views.wishlist_add, name='wishlist_add'),
     path('wishlist/remove/<int:product_id>/', views.wishlist_remove, name='wishlist_remove'),
     path('<slug:category_slug>/', views.product_list, name='product_list_by_category'),
-    path('<int:id>/<slug:slug>/', views.product_detail, name='product_detail'), # <--- And this name
+    path('<int:id>/<slug:slug>/', views.product_detail, name='product_detail'),
+    path('admin-tools/dashboard/', dashboard_views.admin_dashboard, name='admin_dashboard'),
 ]

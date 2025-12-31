@@ -46,6 +46,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/%Y/%m/%d', blank=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Cost to buy/manufacture this product")
     
     # Jewelry Specifics
     metal = models.CharField(max_length=100, choices=[
@@ -349,3 +350,24 @@ class ProductVariant(models.Model):
         if self.color:
             variant_name += f" - Color: {self.color.name}"
         return variant_name
+
+
+class Visitor(models.Model):
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(null=True, blank=True)
+    path = models.CharField(max_length=255)
+    referer = models.URLField(max_length=500, null=True, blank=True)
+    utm_source = models.CharField(max_length=100, null=True, blank=True) # e.g. facebook
+    utm_medium = models.CharField(max_length=100, null=True, blank=True) # e.g. cpc
+    utm_campaign = models.CharField(max_length=100, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+        indexes = [
+            models.Index(fields=['-created']),
+            models.Index(fields=['utm_source']),
+        ]
+
+    def __str__(self):
+        return f"{self.ip_address} - {self.path} at {self.created}"

@@ -1,0 +1,234 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Financial Dashboard | Foxy Glamour Admin{% endblock %}
+
+{% block extrastyle %}
+<!-- Include Bootstrap for the dashboard cards if not already present in admin -->
+<!-- Note: Admin might clash, so we scope it or just use simple styles. 
+         Jazzmin uses Bootstrap 4, so we probably have it available! -->
+<style>
+    .dashboard-card {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .text-success-custom {
+        color: #28a745;
+    }
+
+    .text-danger-custom {
+        color: #dc3545;
+    }
+
+    .text-primary-custom {
+        color: #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row" style="margin: 20px;">
+    <div class="col-12 mb-4">
+        <h1>Financial Dashboard</h1>
+        <p class="text-muted">Overview of business performance</p>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <!-- Jazzmin usually includes Bootstrap grid system -->
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="dashboard-card card">
+            <div class="card-body text-center p-4">
+                <h6 class="text-uppercase text-muted mb-2">Total Revenue</h6>
+                <h3 class="fw-bold text-success-custom">৳{{ total_revenue|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="dashboard-card card">
+            <div class="card-body text-center p-4">
+                <h6 class="text-uppercase text-muted mb-2">Total Cost (COGS)</h6>
+                <h3 class="fw-bold text-danger-custom">৳{{ total_cost|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="dashboard-card card">
+            <div class="card-body text-center p-4">
+                <h6 class="text-uppercase text-muted mb-2">Net Profit</h6>
+                <h3 class="fw-bold text-primary-custom">৳{{ net_profit|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="dashboard-card card">
+            <div class="card-body text-center p-4">
+                <h6 class="text-uppercase text-muted mb-2">Total Orders</h6>
+                <h3 class="fw-bold text-dark">{{ total_orders }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Visitor Card -->
+    <div class="col-md-3 col-sm-6 mb-4">
+        <div class="dashboard-card card">
+            <div class="card-body text-center p-4">
+                <h6 class="text-uppercase text-muted mb-2">Unique Visitors (Today)</h6>
+                <h3 class="fw-bold text-info">{{ visitors_today }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row" style="margin: 0 20px;">
+    <!-- Recent Orders -->
+    <div class="col-lg-8 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0 card-title" style="color: white;">Recent Orders</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td><a href="{% url 'admin:orders_order_change' order.id %}">#{{ order.id }}</a></td>
+                                <td>
+                                    {{ order.email|default:order.user.username }}
+                                </td>
+                                <td>{{ order.created|date:"M d, Y" }}</td>
+                                <td>৳{{ order.get_total_cost }}</td>
+                                <td>
+                                    <span class="badge badge-pill 
+                                        {% if order.status == 'Delivered' %}badge-success
+                                        {% elif order.status == 'Cancelled' %}badge-danger
+                                        {% else %}badge-warning text-dark{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">No orders found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Visitors Section -->
+        <div class="card dashboard-card mt-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0 card-title" style="color: white;">Recent Visitors</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>IP Address</th>
+                                <th>Path</th>
+                                <th>Source (UTM)</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for visit in recent_visits %}
+                            <tr>
+                                <td>{{ visit.ip_address }}</td>
+                                <td>{{ visit.path }}</td>
+                                <td>
+                                    {% if visit.utm_source %}
+                                    <span class="badge badge-info">{{ visit.utm_source }}</span>
+                                    {% elif visit.referer %}
+                                    <span class="text-muted small"
+                                        style="max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ visit.referer }}
+                                    </span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ visit.created|date:"H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4">No visits recorded yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Customers & Traffic Sources -->
+    <div class="col-lg-4 mb-4">
+        <!-- Top Customers -->
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0 card-title" style="color: white;">Top Customers</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for customer in top_customers %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ customer.email|default:"Guest User" }}</strong>
+                        </div>
+                        <span class="badge badge-primary badge-pill">{{ customer.order_count }} Orders</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">No data yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Traffic Sources -->
+        <div class="card dashboard-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0 card-title" style="color: white;">Top Traffic Sources</h5>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for source in top_sources %}
+                    {% if source.utm_source %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ source.utm_source }}</strong>
+                        </div>
+                        <span class="badge badge-secondary badge-pill">{{ source.count }}</span>
+                    </li>
+                    {% endif %}
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">No traffic data yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

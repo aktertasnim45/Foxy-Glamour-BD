@@ -131,7 +131,7 @@ class ProductAdmin(ImportExportModelAdmin):
             'fields': ('name', 'slug', 'category', 'image', 'description')
         }),
         ('Pricing & Discount', {
-            'fields': ('price', 'discount_percentage', 'discount_amount'),
+            'fields': ('price', 'cost_price', 'discount_percentage', 'discount_amount'),
             'description': 'Set discount percentage (0-100) OR fixed amount. Percentage takes priority.'
         }),
         ('Inventory', {

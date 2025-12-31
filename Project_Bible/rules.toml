@@ -1,0 +1,258 @@
+# Foxy Glamour BD - Project Bible Rules
+# Operational guidelines for AI interaction with this project
+
+[project]
+name = "Foxy Glamour BD"
+version = "1.0.0"
+type = "django-ecommerce"
+language = "python"
+framework = "django"
+framework_version = ">=5.2.8"
+
+[analysis]
+# Rules for analyzing and understanding the project
+
+# Always check these files first when understanding context
+priority_files = [
+    "jewelry_site/settings.py",
+    "store/models.py",
+    "store/views.py",
+    "cart/cart.py",
+    "orders/models.py",
+]
+
+# Reference documentation
+reference_docs = [
+    "Project_Bible/overview.md",
+    "Project_Bible/code_structure.md",
+    "Project_Bible/data_schemas.md",
+]
+
+# Before answering ANY question about the project:
+pre_response_checks = [
+    "Verify understanding by checking relevant Bible documents",
+    "Check if related code has been modified since Bible creation",
+    "Confirm current project version matches Bible version",
+]
+
+[updates]
+# Rules for updating the project and Bible
+
+# Log all changes with these details
+changelog_format = """
+## [DATE] [CHANGE_TYPE]
+- **Files Modified:** [list]
+- **Description:** [what changed]
+- **Reason:** [why]
+- **Impact:** [what might break]
+"""
+
+# When making code changes:
+code_change_rules = [
+    "Always update Bible documentation after significant changes",
+    "Update history.md with new entries",
+    "Update improvements.md if technical debt is added",
+    "Run tests after changes if available",
+]
+
+# Bible sync triggers
+sync_triggers = [
+    "New model added or modified",
+    "New view or URL pattern added",
+    "New integration (API, service) created",
+    "Breaking change to existing functionality",
+    "Settings configuration changed",
+]
+
+# Files to update on sync
+sync_files = [
+    "Project_Bible/history.md",
+    "Project_Bible/metadata.json",
+]
+
+[queries]
+# Rules for answering questions about the project
+
+# Response format preferences
+response_format = [
+    "Use code blocks for code snippets",
+    "Reference file paths relative to project root",
+    "Link to Bible sections when relevant",
+    "Include line numbers when referencing existing code",
+]
+
+# Context requirements
+context_requirements = [
+    "Always specify which Django app a change affects",
+    "Note if a change requires database migration",
+    "Identify affected templates for frontend changes",
+    "Consider both mobile and desktop for UI changes",
+]
+
+[modifications]
+# Rules for modifying project code
+
+# Style guidelines
+coding_style = [
+    "Follow PEP 8 for Python code",
+    "Use Django coding conventions",
+    "2-space indentation in templates",
+    "Comments for complex business logic",
+]
+
+# Naming conventions
+naming_conventions = """
+- Models: PascalCase (e.g., ProductVariant)
+- Functions/Methods: snake_case (e.g., get_total_cost)
+- URLs: kebab-case (e.g., admin-tools/dashboard/)
+- Templates: snake_case.html (e.g., product_list.html)
+- CSS Classes: kebab-case (e.g., product-card)
+"""
+
+# Before creating new files:
+new_file_checklist = [
+    "Check if similar functionality exists",
+    "Determine correct Django app placement",
+    "Plan necessary imports",
+    "Consider admin registration if model",
+    "Plan migration if database change",
+]
+
+# Before modifying existing files:
+modification_checklist = [
+    "Read current file contents first",
+    "Understand existing patterns",
+    "Maintain backward compatibility",
+    "Update related tests if any",
+    "Check for dependent code",
+]
+
+# Required validations after changes:
+post_change_validation = [
+    "Verify no syntax errors (import file)",
+    "Check template rendering if template changed",
+    "Verify migrations work if model changed",
+    "Test affected user flows if view changed",
+]
+
+[testing]
+# Testing conventions
+
+# Test commands
+run_tests = "python manage.py test"
+run_single_app = "python manage.py test {app_name}"
+
+# Validation commands
+validate_models = "python manage.py check"
+check_migrations = "python manage.py makemigrations --check --dry-run"
+collect_static = "python manage.py collectstatic --noinput"
+
+[deployment]
+# Deployment guidelines
+
+# Pre-deployment checklist
+pre_deploy = [
+    "Run all tests",
+    "Check for pending migrations",
+    "Verify DEBUG = False for production",
+    "Collect static files",
+    "Update requirements.txt if dependencies changed",
+]
+
+# Post-deployment verification
+post_deploy = [
+    "Verify homepage loads",
+    "Test add-to-cart functionality",
+    "Test checkout flow",
+    "Check admin panel access",
+]
+
+[integrations]
+# External integration handling
+
+[integrations.pathao]
+type = "courier_api"
+base_url = "https://api-hermes.pathao.com"
+auth_method = "oauth2"
+required_env = [
+    "PATHAO_CLIENT_ID",
+    "PATHAO_CLIENT_SECRET",
+    "PATHAO_CLIENT_EMAIL",
+    "PATHAO_CLIENT_PASSWORD",
+    "PATHAO_STORE_ID",
+]
+error_handling = "Log error, raise exception with message"
+
+[integrations.telegram]
+type = "notification_bot"
+api_url = "https://api.telegram.org/bot{token}/sendMessage"
+required_env = [
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID",
+]
+error_handling = "Log error, return False, don't block order"
+
+[security]
+# Security rules
+
+# Never commit these:
+secrets = [
+    ".env",
+    "*.pem",
+    "*.key",
+    "db.sqlite3",
+]
+
+# Always review changes touching:
+security_sensitive_files = [
+    "jewelry_site/settings.py",
+    "orders/pathao.py",
+    "orders/telegram.py",
+]
+
+# Production settings
+production_requirements = [
+    "DEBUG = False",
+    "SECRET_KEY from environment",
+    "ALLOWED_HOSTS restricted",
+    "HTTPS enforced",
+]
+
+[performance]
+# Performance guidelines
+
+# Database query optimization
+query_rules = [
+    "Use select_related for ForeignKey",
+    "Use prefetch_related for ManyToMany",
+    "Avoid N+1 queries in loops",
+    "Use QuerySet.only() for partial fields",
+]
+
+# Template optimization
+template_rules = [
+    "Minimize template logic",
+    "Use {% with %} for repeated lookups",
+    "Cache expensive context processor results",
+]
+
+[bible_maintenance]
+# Bible document maintenance
+
+# Update frequency
+regular_updates = [
+    "history.md: After every significant change",
+    "improvements.md: When adding to technical debt",
+    "metadata.json: On version bump",
+]
+
+# Comprehensive updates trigger for:
+full_update_triggers = [
+    "Major version release",
+    "New Django app added",
+    "Breaking API change",
+    "Significant refactor",
+]
+
+# Document review schedule
+review_schedule = "Before any major feature implementation"

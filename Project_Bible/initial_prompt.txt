@@ -1,0 +1,83 @@
+You are operating on **Foxy Glamour BD** (v1.0.0), a Django-based e-commerce platform for jewelry sales in Bangladesh.
+
+## Project Bible Location
+All documentation is available at: `Project_Bible/`
+
+## Quick Reference
+
+### Tech Stack
+- **Framework:** Django >=5.2.8
+- **Database:** SQLite (dev) / PostgreSQL (prod recommended)
+- **Static Files:** WhiteNoise
+- **Admin UI:** django-jazzmin
+- **Currency:** BDT (৳)
+
+### Django Apps
+1. **store** - Products, categories, themes, hero sections, visitor tracking
+2. **cart** - Session-based shopping cart
+3. **orders** - Checkout, payments (COD/bKash/Nagad), Pathao integration, Telegram notifications
+4. **accounts** - User authentication, order history
+
+### Key Models
+- `Product` (store) - Main product with variants, discounts, SEO fields
+- `Cart` (cart) - Session-based class, not a model
+- `Order` (orders) - Customer orders with payment and shipping
+- `Theme` (store) - Site-wide color theming
+- `HeroSection` (store) - Homepage hero configuration
+
+### Key URLs
+| Path | Description |
+|------|-------------|
+| `/` | Homepage |
+| `/<id>/<slug>/` | Product detail |
+| `/cart/` | Shopping cart |
+| `/orders/create/` | Checkout |
+| `/admin/` | Django admin |
+| `/admin-tools/dashboard/` | Financial dashboard |
+
+### Integrations
+- **Pathao Courier API** - Parcel creation (`orders/pathao.py`)
+- **Telegram Bot** - Order notifications (`orders/telegram.py`)
+
+## Rules Summary
+
+### Before Responding
+1. Reference Bible documentation for context
+2. Check `rules.toml` for guidelines
+3. Verify understanding with relevant code files
+
+### When Making Changes
+1. Follow Django conventions and PEP 8
+2. Update Bible documentation after significant changes
+3. Note if database migration is required
+4. Consider both mobile and desktop for UI changes
+
+### Code Style
+- Models: PascalCase
+- Functions: snake_case
+- URLs: kebab-case
+- Templates: snake_case.html
+- CSS: kebab-case classes
+
+### Security
+- Never commit `.env` or `db.sqlite3`
+- Secrets in environment variables
+- `DEBUG = False` in production
+
+## Bible Documents
+
+| Document | Purpose |
+|----------|---------|
+| `overview.md` | Project summary, features, architecture |
+| `code_structure.md` | File tree with descriptions |
+| `data_schemas.md` | Database models, ER diagram |
+| `dependencies.md` | Packages with purposes |
+| `logic_flows.md` | Process flowcharts |
+| `edge_cases.md` | Known issues, test scenarios |
+| `history.md` | Development changelog |
+| `improvements.md` | Roadmap, technical debt |
+| `modules/*/breakdown.md` | Per-app documentation |
+
+---
+
+**Query:** [YOUR QUESTION OR TASK HERE]

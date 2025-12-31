@@ -7,6 +7,33 @@
     .initially-hidden {
         display: none;
     }
+
+    /* Discount badge for payment methods */
+    .payment-discount-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: #28a745;
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 12px;
+        margin-left: 10px;
+        white-space: nowrap;
+        animation: pulse-badge 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-badge {
+
+        0%,
+        100% {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+    }
 </style>
 
 <div class="checkout-header">
@@ -69,6 +96,10 @@
                     <span>TK. <span id="shipping-cost">--</span></span>
                 </li>
             </ul>
+            <div id="discount-line" class="summary-item discount-line" style="display: none; color: #28a745;">
+                <span>bKash/Nagad Discount</span>
+                <span>-TK. <span id="discount-amount">10.00</span></span>
+            </div>
             <div class="summary-total">
                 <span>Total</span>
                 <span>TK. <span id="grand-total">{{ cart.get_total_price }}</span></span>
@@ -121,17 +152,34 @@
         function updateTotals() {
             if (!shippingSelect) return;
             const zone = shippingSelect.value;
-            const cost = shippingRates[zone] || 0;
+            const shippingCost = shippingRates[zone] || 0;
 
-            if (shippingCostSpan) shippingCostSpan.textContent = cost.toFixed(2);
+            // Check if bKash/Nagad is selected for discount
+            const MOBILE_PAYMENT_DISCOUNT = 10;
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+            const isMobilePayment = selectedPayment && (selectedPayment.value === 'bkash' || selectedPayment.value === 'nagad');
+            const discount = isMobilePayment ? MOBILE_PAYMENT_DISCOUNT : 0;
 
-            const total = cartTotal + cost;
+            // Update shipping cost display
+            if (shippingCostSpan) shippingCostSpan.textContent = shippingCost.toFixed(2);
+
+            // Show/hide discount line
+            const discountLine = document.getElementById('discount-line');
+            if (discountLine) {
+                discountLine.style.display = isMobilePayment ? 'flex' : 'none';
+            }
+
+            // Calculate and update grand total
+            const total = cartTotal + shippingCost - discount;
             if (grandTotalSpan) grandTotalSpan.textContent = total.toFixed(2);
         }
 
         // Listen for changes
         paymentRadios.forEach(radio => {
-            radio.addEventListener('change', togglePaymentFields);
+            radio.addEventListener('change', function () {
+                togglePaymentFields();
+                updateTotals(); // Recalculate totals when payment method changes
+            });
         });
 
         if (shippingSelect) {
@@ -141,6 +189,19 @@
         // Run on load (to handle form re-rendering if there are errors)
         togglePaymentFields();
         updateTotals();
+
+        // Add discount badges to bKash and Nagad payment options
+        paymentRadios.forEach(radio => {
+            if (radio.value === 'bkash' || radio.value === 'nagad') {
+                const label = radio.parentElement;
+                if (label && !label.querySelector('.payment-discount-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'payment-discount-badge';
+                    badge.textContent = '10 TK OFF';
+                    label.appendChild(badge);
+                }
+            }
+        });
     });
 </script>
 {% endblock %}

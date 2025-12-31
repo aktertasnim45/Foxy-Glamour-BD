@@ -1,0 +1,148 @@
+{
+  "project_name": "Foxy Glamour BD",
+  "project_type": "E-commerce Platform",
+  "version": "1.0.0",
+  "bible_version": "1.0.0",
+  "bible_created": "2025-12-31T14:44:43+06:00",
+  "bible_updated": "2025-12-31T14:44:43+06:00",
+  
+  "framework": {
+    "name": "Django",
+    "version": ">=5.2.8",
+    "admin_theme": "django-jazzmin"
+  },
+  
+  "database": {
+    "engine": "sqlite3",
+    "name": "db.sqlite3",
+    "production_recommendation": "PostgreSQL"
+  },
+  
+  "apps": [
+    {
+      "name": "store",
+      "description": "Products, categories, themes, hero sections, analytics",
+      "models": ["Category", "Size", "Color", "Product", "ProductImage", "ProductVariant", "Wishlist", "Theme", "HeroSection", "Visitor"]
+    },
+    {
+      "name": "cart",
+      "description": "Session-based shopping cart",
+      "models": []
+    },
+    {
+      "name": "orders",
+      "description": "Order management, checkout, payment, courier integration",
+      "models": ["Order", "OrderItem", "PathaoCity", "PathaoZone", "PathaoArea"]
+    },
+    {
+      "name": "accounts",
+      "description": "User authentication and dashboard",
+      "models": []
+    }
+  ],
+  
+  "features": {
+    "core": [
+      "Product catalog with variants",
+      "Session-based shopping cart",
+      "Multi-payment checkout (COD, bKash, Nagad)",
+      "Order management",
+      "User authentication"
+    ],
+    "integrations": [
+      "Pathao Courier API",
+      "Telegram Bot notifications"
+    ],
+    "admin": [
+      "Theme customization",
+      "Hero section management",
+      "Product import/export (CSV/Excel)",
+      "Financial dashboard"
+    ],
+    "seo": [
+      "Meta tags",
+      "Open Graph",
+      "Twitter Cards",
+      "XML Sitemap",
+      "robots.txt"
+    ]
+  },
+  
+  "urls": {
+    "homepage": "/",
+    "product_detail": "/<id>/<slug>/",
+    "category": "/<category_slug>/",
+    "search": "/search/",
+    "cart": "/cart/",
+    "checkout": "/orders/create/",
+    "login": "/accounts/login/",
+    "register": "/accounts/register/",
+    "dashboard": "/accounts/dashboard/",
+    "admin": "/admin/",
+    "financial_dashboard": "/admin-tools/dashboard/"
+  },
+  
+  "environment_variables": [
+    "SECRET_KEY",
+    "DEBUG",
+    "ALLOWED_HOSTS",
+    "PATHAO_CLIENT_ID",
+    "PATHAO_CLIENT_SECRET",
+    "PATHAO_CLIENT_EMAIL",
+    "PATHAO_CLIENT_PASSWORD",
+    "PATHAO_STORE_ID",
+    "PATHAO_SENDER_PHONE",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID"
+  ],
+  
+  "dependencies": [
+    {"name": "Django", "version": ">=5.2.8"},
+    {"name": "whitenoise", "version": ">=6.6.0"},
+    {"name": "python-dotenv", "version": ">=1.0.0"},
+    {"name": "django-jazzmin", "version": ">=3.0.0"},
+    {"name": "django-import-export", "version": ">=4.0.0"},
+    {"name": "Pillow", "version": ">=10.0.0"},
+    {"name": "requests", "version": ">=2.31.0"}
+  ],
+  
+  "business_context": {
+    "market": "Bangladesh",
+    "currency": "BDT (৳)",
+    "shipping_zones": {
+      "inside_dhaka": 80,
+      "intercity_dhaka": 120,
+      "outside_dhaka": 150
+    },
+    "payment_methods": ["cod", "bkash", "nagad"],
+    "merchant_phone": "01671403438"
+  },
+  
+  "statistics": {
+    "python_files": "~40+",
+    "html_templates": "~20",
+    "css_files": 3,
+    "total_models": 15,
+    "bible_documents": 12
+  },
+  
+  "bible_structure": {
+    "overview.md": "High-level summary, tech stack, features",
+    "code_structure.md": "File tree with descriptions",
+    "data_schemas.md": "Database models and relationships",
+    "dependencies.md": "Package list with purposes",
+    "logic_flows.md": "Process diagrams and algorithms",
+    "edge_cases.md": "Known issues and test scenarios",
+    "history.md": "Development changelog",
+    "improvements.md": "Roadmap and technical debt",
+    "rules.toml": "AI interaction guidelines",
+    "metadata.json": "This file - machine-readable summary",
+    "initial_prompt.txt": "Reusable prompt prefix",
+    "modules/": {
+      "store/breakdown.md": "Store app documentation",
+      "cart/breakdown.md": "Cart app documentation",
+      "orders/breakdown.md": "Orders app documentation",
+      "accounts/breakdown.md": "Accounts app documentation"
+    }
+  }
+}

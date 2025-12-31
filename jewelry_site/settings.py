@@ -68,6 +68,7 @@ AUTH_PASSWORD_VALIDATORS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware", # Whitenoise
+    'store.middleware.VisitorTrackingMiddleware', # Custom Visitor Tracking
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -165,6 +166,7 @@ JAZZMIN_SETTINGS = {
     "copyright": "Foxy Glamour Ltd",
     "topmenu_links": [
         {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Financial Dashboard", "url": "store:admin_dashboard", "permissions": ["orders.view_order"]},
         {"name": "View Site", "url": "/", "new_window": True},
     ],
     "user_avatar": None,

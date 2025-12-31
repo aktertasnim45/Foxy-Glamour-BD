@@ -8,6 +8,9 @@ class Order(models.Model):
         ('bkash', 'bKash'),
         ('nagad', 'Nagad'),
     ]
+    
+    # Discount for mobile payments (bKash/Nagad)
+    MOBILE_PAYMENT_DISCOUNT = 10
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='orders', null=True, blank=True)
     first_name = models.CharField(max_length=50)
@@ -22,6 +25,7 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES, default='cod')
     bkash_number = models.CharField(max_length=11, blank=True, null=True, help_text="The number you sent money from (bKash/Nagad)")
     transaction_id = models.CharField(max_length=30, blank=True, null=True, help_text="Transaction ID from bKash/Nagad")
+    payment_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Discount for mobile payment methods")
     
     # SHIPPING
     SHIPPING_ZONE_CHOICES = [
@@ -76,13 +80,15 @@ class Order(models.Model):
             return 80
 
     def get_total_cost(self):
-        return sum(item.get_cost() for item in self.items.all()) + self.get_shipping_cost()
+        subtotal = sum(item.get_cost() for item in self.items.all())
+        return subtotal + self.get_shipping_cost() - self.payment_discount
 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    cost_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
